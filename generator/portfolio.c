@@ -17,13 +17,13 @@ Persona persona_make()
 void persona_free(Persona* persona)
 {
     if (persona->name)
-        string_free(persona->name);
+        string_free(&persona->name);
 
     if (persona->color)
-        string_free(persona->color);
+        string_free(&persona->color);
 
     if (persona->blerb)
-        string_free(persona->blerb);
+        string_free(&persona->blerb);
 
     da_foreach(String, ab, persona->abilities)
         string_free(ab);
@@ -44,13 +44,13 @@ Portfolio portfolio_make()
 void portfolio_free(Portfolio* portfolio)
 {
     if (portfolio->home_template)
-        string_free(portfolio->home_template);
+        string_free(&portfolio->home_template);
 
     if (portfolio->page_template)
-        string_free(portfolio->page_template);
+        string_free(&portfolio->page_template);
 
     if (portfolio->outdir)
-        string_free(portfolio->outdir);
+        string_free(&portfolio->outdir);
 
     da_foreach(Persona, persona, portfolio->peronas)
         persona_free(persona);
