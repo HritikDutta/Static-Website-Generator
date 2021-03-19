@@ -298,10 +298,7 @@ static Persona parse_persona(Parser* parser)
     advance_token(parser);
 
     if (!curr_token_is_type(parser, TOKEN_L_BRACE))
-    {
-        PARSE_ERROR("Persona property must be equal to an object.");
         return persona;
-    }
 
     advance_token(parser);
     int num_tokens = da_size(parser->tokens);
@@ -469,7 +466,6 @@ Portfolio parser_parse(Parser* parser)
     }
 
     return portfolio;
-
 }
 
 #undef CHECK_STATEMENT_END
