@@ -41,3 +41,7 @@
 *.su
 *.idb
 *.pdb
+
+# Visual Studio Stuff
+.vs
+.vscode
