@@ -254,7 +254,7 @@ static void advance_token(Parser* parser)
             advance_token(parser);                          \
     } while (0)
 
-void fill_string_array(Parser* parser, DArray(String)* arr)
+static void fill_string_array(Parser* parser, DArray(String)* arr)
 {
     // Checked for '[' in parse_persona()
     advance_token(parser);
@@ -286,6 +286,149 @@ void fill_string_array(Parser* parser, DArray(String)* arr)
         }
 
         PARSE_ERROR("Unexpected token found in string array.");
+    }
+}
+
+static Project parser_project(Parser* parser)
+{
+    Project project = project_make();
+
+    // Checked for '{' in fill_projects()
+    advance_token(parser);
+    int num_tokens = da_size(parser->tokens);
+    while (parser->status != PARSER_FAILURE && !curr_token_is_type(parser, TOKEN_R_BRACE))
+    {
+        if (parser->current_token_idx >= num_tokens)
+        {
+            PARSE_ERROR("Project object was never closed with '}'.");
+            continue;
+        }
+
+        if (!curr_token_is_type(parser, TOKEN_INDENTIFIER))
+        {
+            PARSE_ERROR("Expected an attribute inside object.");
+            continue;
+        }
+
+        String attribute = curr_token(parser).value;
+
+        advance_token(parser);
+        if (!curr_token_is_type(parser, TOKEN_COLON))
+        {
+            PARSE_ERROR("Expected ':' after attribute.");
+            continue;
+        }
+
+        advance_token(parser);
+
+        if (string_cmp(attribute, "name"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_STRING))
+            {
+                PARSE_ERROR("Name attribute of a project should be equal to a string.");
+                continue;
+            }
+
+            project.name = string_make(curr_token(parser).value);
+            advance_token(parser);
+
+            CHECK_STATEMENT_END();
+            continue;
+        }
+
+        if (string_cmp(attribute, "date"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_STRING))
+            {
+                PARSE_ERROR("Date attribute of a project should be equal to a string.");
+                continue;
+            }
+
+            project.date = string_make(curr_token(parser).value);
+            advance_token(parser);
+
+            CHECK_STATEMENT_END();
+            continue;
+        }
+
+        if (string_cmp(attribute, "desc"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_STRING))
+            {
+                PARSE_ERROR("Desc attribute of a project should be equal to a string.");
+                continue;
+            }
+
+            project.description = string_make(curr_token(parser).value);
+            advance_token(parser);
+
+            CHECK_STATEMENT_END();
+            continue;
+        }
+
+        if (string_cmp(attribute, "skills"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_L_BRACKET))
+            {
+                PARSE_ERROR("Skills attribute of a project should be equal to an array of strings.");
+                continue;
+            }
+
+            fill_string_array(parser, &project.skills);
+
+            if (parser->status != PARSER_FAILURE)
+                CHECK_STATEMENT_END();
+            
+            continue;
+        }        
+    }
+
+    if (parser->status != PARSER_FAILURE)
+        advance_token(parser);
+
+    return project;
+}
+
+static void fill_projects(Parser* parser, DArray(Project)* arr)
+{
+    // Checked for '[' in parse_persona()
+    advance_token(parser);
+    int num_tokens = da_size(parser->tokens);
+    while (parser->status != PARSER_FAILURE)
+    {
+        if (parser->current_token_idx >= num_tokens)
+        {
+            PARSE_ERROR("Projects array was never closed with ']'.");
+            continue;
+        }
+
+        if (curr_token_is_type(parser, TOKEN_L_BRACE))
+        {
+            Project project = parser_project(parser);
+            if (parser->status != PARSER_FAILURE)
+            {
+                da_push_back((*arr), project);
+
+                if (curr_token_is_type(parser, TOKEN_COMMA))
+                {
+                    advance_token(parser);
+                    continue;
+                }
+            }
+            else
+                project_free(&project);
+        }
+
+        if (parser->status != PARSER_FAILURE)
+        {
+            if (curr_token_is_type(parser, TOKEN_R_BRACKET))
+            {
+                advance_token(parser);
+                break;
+            }
+
+            PARSE_ERROR("Unexpected token found in string array.");
+        }
     }
 }
 
@@ -331,7 +474,7 @@ static Persona parse_persona(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Color attribute should be equal to a string.");
+                PARSE_ERROR("Color attribute of a persona should be equal to a string.");
                 continue;
             }
 
@@ -346,7 +489,7 @@ static Persona parse_persona(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Blerb attribute should be equal to a string.");
+                PARSE_ERROR("Blerb attribute of a persona should be equal to a string.");
                 continue;
             }
 
@@ -361,7 +504,7 @@ static Persona parse_persona(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_L_BRACKET))
             {
-                PARSE_ERROR("Abilties attribute should be equal to an array of strings.");
+                PARSE_ERROR("Abilties attribute of a persona should be equal to an array of strings.");
                 continue;
             }
 
@@ -373,15 +516,17 @@ static Persona parse_persona(Parser* parser)
             continue;
         }
 
+        // @Todo: For now projects are just strings.
+        //        Later they must be parsed as objects.
         if (string_cmp(attribute, "projects"))
         {
             if (!curr_token_is_type(parser, TOKEN_L_BRACKET))
             {
-                PARSE_ERROR("Abilties attribute should be equal to an array of strings.");
+                PARSE_ERROR("Projects attribute a persona should be equal to an array of strings.");
                 continue;
             }
 
-            fill_string_array(parser, &persona.projects);
+            fill_projects(parser, &persona.projects);
 
             if (parser->status != PARSER_FAILURE)
                 CHECK_STATEMENT_END();
@@ -448,10 +593,12 @@ Portfolio parser_parse(Parser* parser)
 
             if (string_cmp(i_name, "persona"))
             {
-                Persona p = parse_persona(parser);
+                Persona persona = parse_persona(parser);
 
                 if (parser->status != PARSER_FAILURE)
-                    da_push_back(portfolio.peronas, p);
+                    da_push_back(portfolio.peronas, persona);
+                else
+                    persona_free(&persona);
 
                 continue;
             }
