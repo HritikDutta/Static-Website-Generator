@@ -1,0 +1,67 @@
+$home_template "portfolio/home_template.html"
+$page_template "portfolio/page_template.html"
+$outdir        "website"
+
+$persona "Film Maker" {
+    color: "#f72323";
+    abilities: [
+        "Writing",
+        "Direction",
+        "Cinematography",
+        "Editing",
+        "Sound Design"
+    ];
+    blerb:
+    `Some blerb about me being a filmaker. I have made many films of my own with
+    the help of my friends. You can see these projects below.`;
+    projects: [];
+}
+
+$persona "Programmer" {
+    color: "#f3d73b";
+    abilities: [
+        "C/C++",
+        "HTML/CSS",
+        "Javascript",
+        "Python",
+        "Algorithms",
+        "Data Structures",
+        "Coffee Drinking"
+    ];
+    blerb:
+    `Some blerb about me programming for a while and have made many projects
+    till now. All the projects will be linked below.`;
+    projects: [];
+}
+
+$persona "Game Developer" {
+    color: "#f3d73b";   // Some green color here
+    abilities: [
+        "C/C++",
+        "OpenGL",
+        "WebGL",
+        "Unity",
+        "C#",
+        "Javascript",
+        "Algorithms",
+        "Data Structures"
+    ];
+    blerb:
+    `Some blerb about me making games for a while and have made many projects
+    till now. All the projects will be linked below.`;
+    projects: [];
+}
+
+$persona "Photographer" {
+    color: "#78afff";
+    abilities: [
+        "Wildlife",
+        "Fashion",
+        "Street",
+        "Product"
+    ];
+    blerb:
+    `Some blerb about me clicking pictures for a while.
+    All the photographs will be linked below.`;
+    projects: [];
+}
