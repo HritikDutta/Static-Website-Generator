@@ -16,7 +16,32 @@ $persona "Film Maker" {
     blerb:
     `Some blerb about me being a filmaker. I have made many films of my own with
     the help of my friends. You can see these projects below.`;
-    projects: [];
+    projects: [
+        {
+            name: "Deadline";
+            date: "20th March 2021";
+            desc: `A description for deadline.`;
+            skills: [
+                "Acting",
+                "Direction",
+                "Cinematography",
+                "Editing",
+                "Sound Design",
+            ];
+        },
+        {
+            name: "Pratibimb";
+            date: "31st August 2021";
+            desc: `A description for pratibimb.`;
+            skills: [
+                "Writing",
+                "Direction",
+                "Cinematography",
+                "Editing",
+                "Colour Grading"
+            ];
+        },
+    ];
 }
 
 $persona "Programmer" {
