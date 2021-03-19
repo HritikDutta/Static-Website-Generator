@@ -20,7 +20,7 @@ typedef struct
     String color;
     DArray(String) abilities;
     String blerb;
-    DArray(String) projects;
+    DArray(Project) projects;
 } Persona;
 
 Persona persona_make();

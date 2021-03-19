@@ -3,12 +3,35 @@
 #include "containers/string.h"
 #include "containers/darray.h"
 
+Project project_make()
+{
+    DArray(String) skills;
+    da_make(skills);
+    return (Project) { 0, 0, skills, 0 };
+}
+
+void project_free(Project* project)
+{
+    if (project->name)
+        string_free(&project->name);
+
+    if (project->date)
+        string_free(&project->date);
+
+    if (project->description)
+        string_free(&project->description);
+
+    da_foreach(String, skill, project->skills)
+        string_free(skill);
+    da_free(project->skills);        
+}
+
 Persona persona_make()
 {
     DArray(String) abilities;
     da_make(abilities);
 
-    DArray(String) projects;
+    DArray(Project) projects;
     da_make(projects);
 
     return (Persona){ 0, 0, abilities, 0, projects };
@@ -29,8 +52,8 @@ void persona_free(Persona* persona)
         string_free(ab);
     da_free(persona->abilities);
 
-    da_foreach(String, pj, persona->projects)
-        string_free(pj);
+    da_foreach(Project, pj, persona->projects)
+        project_free(pj);
     da_free(persona->projects);
 }
 
