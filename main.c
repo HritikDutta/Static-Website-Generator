@@ -45,13 +45,21 @@ int main(int argc, char* argv[])
 
             printf("Abilities:\n");
             da_foreach(String, ab, persona->abilities)
-                printf("%s\n", *ab);
+                printf("    %s\n", *ab);
 
             printf("Blerb: %s\n", persona->blerb);
 
             printf("Projects:\n");
-            da_foreach(String, pj, persona->projects)
-                printf("%s\n", *pj);
+            da_foreach(Project, pj, persona->projects)
+            {
+                printf("    Name: %s\n", pj->name);
+                printf("    Date: %s\n", pj->date);
+                printf("    Desc: %s\n", pj->description);
+
+                printf("    Skills:\n");
+                da_foreach(String, skill, pj->skills)
+                    printf("        %s\n", *skill);
+            }
 
             printf("\n");
         }
