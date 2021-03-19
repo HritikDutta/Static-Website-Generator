@@ -23,7 +23,6 @@ int main(int argc, char* argv[])
     String contents = load_file(argv[1]);
     #endif    
 
-
     Lexer lexer = lexer_make(contents);
     lexer_lex(&lexer);
 
@@ -59,4 +58,5 @@ int main(int argc, char* argv[])
     }
 
     parser_free(&parser);
+    portfolio_free(&portfolio);
 }
