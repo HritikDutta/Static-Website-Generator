@@ -77,6 +77,21 @@ void lexer_lex(Lexer* lexer)
 
         switch (ch)
         {
+            // Single character tokens
+            case TOKEN_DOLLAR:
+            case TOKEN_L_BRACKET:
+            case TOKEN_R_BRACKET:
+            case TOKEN_L_BRACE:
+            case TOKEN_R_BRACE:
+            case TOKEN_COLON:
+            case TOKEN_SEMI_COLON:
+            case TOKEN_COMMA:
+            {
+                Token t = { ch, NULL };
+                da_push_back(lexer->tokens, t);
+                consume(lexer);
+            } break;
+
             case '`':       // @Todo: Change this so that the string actually
                             //        gets formatted.
             case '"':
@@ -112,62 +127,6 @@ void lexer_lex(Lexer* lexer)
                 }
                 else
                     LEX_ERROR("Couldn't find closing '\"' for string.");
-            } break;
-
-            case TOKEN_DOLLAR:
-            {
-                Token t = { TOKEN_DOLLAR, NULL };
-                da_push_back(lexer->tokens, t);
-                consume(lexer);
-            } break;
-
-            case TOKEN_L_BRACKET:
-            {
-                Token t = { TOKEN_L_BRACKET, NULL };
-                da_push_back(lexer->tokens, t);
-                consume(lexer);
-            } break;
-
-            case TOKEN_R_BRACKET:
-            {
-                Token t = { TOKEN_R_BRACKET, NULL };
-                da_push_back(lexer->tokens, t);
-                consume(lexer);
-            } break;
-
-            case TOKEN_L_BRACE:
-            {
-                Token t = { TOKEN_L_BRACE, NULL };
-                da_push_back(lexer->tokens, t);
-                consume(lexer);
-            } break;
-
-            case TOKEN_R_BRACE:
-            {
-                Token t = { TOKEN_R_BRACE, NULL };
-                da_push_back(lexer->tokens, t);
-                consume(lexer);
-            } break;
-
-            case TOKEN_COLON:
-            {
-                Token t = { TOKEN_COLON, NULL };
-                da_push_back(lexer->tokens, t);
-                consume(lexer);
-            } break;
-
-            case TOKEN_SEMI_COLON:
-            {
-                Token t = { TOKEN_SEMI_COLON, NULL };
-                da_push_back(lexer->tokens, t);
-                consume(lexer);
-            } break;
-
-            case TOKEN_COMMA:
-            {
-                Token t = { TOKEN_COMMA, NULL };
-                da_push_back(lexer->tokens, t);
-                consume(lexer);
             } break;
 
             case '/':
