@@ -42,6 +42,8 @@ int main(int argc, char* argv[])
         {
             printf("Name: %s\n", persona->name);
             printf("Color: %s\n", persona->color);
+            printf("Image: %s\n", persona->image);
+            printf("Icon: %s\n", persona->icon);
 
             printf("Abilities:\n");
             da_foreach(String, ab, persona->abilities)
@@ -65,6 +67,8 @@ int main(int argc, char* argv[])
         }
     }
 
+    string_free(&contents);
+    lexer_free(&lexer);
     parser_free(&parser);
     portfolio_free(&portfolio);
 }
