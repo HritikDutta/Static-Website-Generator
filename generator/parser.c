@@ -485,6 +485,36 @@ static Persona parse_persona(Parser* parser)
             continue;
         }
 
+        if (string_cmp(attribute, "image"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_STRING))
+            {
+                PARSE_ERROR("Image attribute of a persona should be equal to a string.");
+                continue;
+            }
+
+            persona.image = string_make(curr_token(parser).value);
+            advance_token(parser);
+
+            CHECK_STATEMENT_END();
+            continue;
+        }
+
+        if (string_cmp(attribute, "icon"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_STRING))
+            {
+                PARSE_ERROR("Icon attribute of a persona should be equal to a string.");
+                continue;
+            }
+
+            persona.icon = string_make(curr_token(parser).value);
+            advance_token(parser);
+
+            CHECK_STATEMENT_END();
+            continue;
+        }
+
         if (string_cmp(attribute, "blerb"))
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
