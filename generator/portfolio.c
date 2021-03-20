@@ -7,7 +7,7 @@ Project project_make()
 {
     DArray(String) skills;
     da_make(skills);
-    return (Project) { 0, 0, skills, 0 };
+    return (Project) { 0, 0, 0, skills, 0 };
 }
 
 void project_free(Project* project)
@@ -17,6 +17,9 @@ void project_free(Project* project)
 
     if (project->date)
         string_free(&project->date);
+
+    if (project->link)
+        string_free(&project->link);
 
     if (project->description)
         string_free(&project->description);

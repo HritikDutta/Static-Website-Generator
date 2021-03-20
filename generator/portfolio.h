@@ -7,6 +7,7 @@ typedef struct
 {
     String name;
     String date;
+    String link;
     DArray(String) skills;
     String description;
 } Project;
