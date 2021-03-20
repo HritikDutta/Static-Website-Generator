@@ -57,6 +57,7 @@ int main(int argc, char* argv[])
                 printf("    Name: %s\n", pj->name);
                 printf("    Date: %s\n", pj->date);
                 printf("    Desc: %s\n", pj->description);
+                printf("    Link: %s\n", pj->link);
 
                 printf("    Skills:\n");
                 da_foreach(String, skill, pj->skills)
