@@ -18,6 +18,8 @@ typedef struct
 {
     String name;
     String color;
+    String image;
+    String icon;
     DArray(String) abilities;
     String blerb;
     DArray(Project) projects;

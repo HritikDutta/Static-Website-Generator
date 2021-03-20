@@ -34,7 +34,7 @@ Persona persona_make()
     DArray(Project) projects;
     da_make(projects);
 
-    return (Persona){ 0, 0, abilities, 0, projects };
+    return (Persona){ 0, 0, 0, 0, abilities, 0, projects };
 }
 
 void persona_free(Persona* persona)
@@ -44,6 +44,12 @@ void persona_free(Persona* persona)
 
     if (persona->color)
         string_free(&persona->color);
+
+    if (persona->image)
+        string_free(&persona->image);
+
+    if (persona->icon)
+        string_free(&persona->icon);
 
     if (persona->blerb)
         string_free(&persona->blerb);
