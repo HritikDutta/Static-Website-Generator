@@ -23,6 +23,7 @@ $persona "Film Maker" {
             name: "Deadline";
             date: "20th March 2021";
             desc: `A description for deadline.`;
+            link: "https://www.youtube.com/video/Deadline";
             skills: [
                 "Acting",
                 "Direction",
@@ -35,6 +36,7 @@ $persona "Film Maker" {
             name: "Pratibimb";
             date: "31st August 2021";
             desc: `A description for pratibimb.`;
+            link: "https://www.youtube.com/video/Pratibimb";
             skills: [
                 "Writing",
                 "Direction",
