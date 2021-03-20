@@ -366,6 +366,21 @@ static Project parser_project(Parser* parser)
             continue;
         }
 
+        if (string_cmp(attribute, "link"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_STRING))
+            {
+                PARSE_ERROR("Desc attribute of a project should be equal to a string.");
+                continue;
+            }
+
+            project.link = string_make(curr_token(parser).value);
+            advance_token(parser);
+
+            CHECK_STATEMENT_END();
+            continue;
+        }
+
         if (string_cmp(attribute, "skills"))
         {
             if (!curr_token_is_type(parser, TOKEN_L_BRACKET))
@@ -546,8 +561,6 @@ static Persona parse_persona(Parser* parser)
             continue;
         }
 
-        // @Todo: For now projects are just strings.
-        //        Later they must be parsed as objects.
         if (string_cmp(attribute, "projects"))
         {
             if (!curr_token_is_type(parser, TOKEN_L_BRACKET))
