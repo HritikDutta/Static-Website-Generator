@@ -6,6 +6,8 @@ $persona "Writer"
 
 $persona "Film Maker" {
     color: "#f72323";
+    image: "res/images/filmmaker.png";
+    icon:  "res/icons/filmmaker.png";
     abilities: [
         "Writing",
         "Direction",
@@ -46,6 +48,8 @@ $persona "Film Maker" {
 
 $persona "Programmer" {
     color: "#f3d73b";
+    image: "res/images/programmer.png";
+    icon:  "res/icons/programmer.png";
     abilities: [
         "C/C++",
         "HTML/CSS",
@@ -63,6 +67,8 @@ $persona "Programmer" {
 
 $persona "Game Developer" {
     color: "#f3d73b";   // Some green color here
+    image: "res/images/game-dev.png";
+    icon:  "res/icons/game-dev.png";
     abilities: [
         "C/C++",
         "OpenGL",
@@ -81,6 +87,8 @@ $persona "Game Developer" {
 
 $persona "Photographer" {
     color: "#78afff";
+    image: "res/images/photographer.png";
+    icon:  "res/icons/photographer.png";
     abilities: [
         "Wildlife",
         "Fashion",
