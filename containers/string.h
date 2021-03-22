@@ -96,7 +96,7 @@ String string_make_till_char(char* cstr, char delim)
 
 String string_make_till_n(char* cstr, size_t n)
 {
-    hd_assert(n < strlen(cstr));
+    hd_assert(n < strlen(cstr) + 1);
 
     size_t byte_size = (n + 1) * sizeof(char) + sizeof(String_Internal);
     String_Internal* s = (String_Internal*) malloc(byte_size);
