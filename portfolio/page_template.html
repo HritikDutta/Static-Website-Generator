@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hritik the <$name></title>
+    <style>
+        .signature-color {
+            color: <$color>;
+        }
+    </style>
+</head>
+<body>
+    <$personas -> p {
+        <$if p.selected {
+            <div class="link selected">
+        } else {
+            <div class="link">
+        }>
+        <!-- See if this also works -->
+        <!-- <div class="link <$if p.selected { selected }>"> -->
+            <a href="<$p.name>.html"><img src="<$p.image>" /></a>
+            <h6 style="color: <$p.color>;"><$p.name></h6>
+        </div>
+    }>
+
+    <section id="about-character" class="container">
+        <h1 class="special-text">Hritik the <span class="signature-color"><$name></span></h1>
+        <div id="about">
+            <div id="hero-image-section"><img src="<$image>" alt="Film Maker Persona" class="hero-image" /></div>
+            <div id="abilities">
+                <h3 class="special-text signature-color">Abilities</h3>
+                <$abilities -> ab {
+                    <$ab> <br />
+                }>
+            </div>
+            <div id="blerb">
+                <h3 class="special-text signature-color">Blerb</h3>
+                <p>
+                    <$blerb>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="container">
+        <h1 id="projects-header" class="special-text grey-text">Projects</h1>
+        <div id="project-list">
+            <$projects -> p {
+                <!-- Project: <$p.name> -->
+                <div class="project-card">
+                    <nav>
+                        <a href="<$p.link>" class="project-title special-text signature-color"><$p.name></a>
+                        <div class="project-date grey-text"><$p.date></div>
+                        <ul>
+                            <$p.skills -> s {
+                                <li class="project-skill grey-text"><$s></li>
+                            }>
+                        </ul>
+                        <p>
+                            <$p.description>
+                        </p>
+                    </nav>
+                </div>
+            }>            
+        </div>
+    </section>
+</body>
+</html>
