@@ -24,3 +24,15 @@ String load_file(const String filepath)
 
     return contents;
 }
+
+int write_file(const String filepath, String contents)
+{
+    FILE* file = fopen(filepath, "wb");
+    if (!file)
+        return 0;
+
+    fputs(contents, file);
+
+    fclose(file);
+    return 1;
+}
