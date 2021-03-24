@@ -4,6 +4,7 @@
 #include "filestuff.h"
 #include "containers/hd_assert.h"
 #include "containers/darray.h"
+#include "containers/dictionary.h"
 
 Stage html_stage_make()
 {
@@ -17,7 +18,8 @@ Stage prop_stage_make()
 {
     Stage s;
     s.type = STAGE_PROPERTY;
-    s.property.name = NULL;
+    s.property.name   = NULL;
+    s.property.parent = NULL;
     return s;
 }
 
@@ -25,7 +27,6 @@ Stage list_stage_make()
 {
     Stage s;
     s.type = STAGE_LIST;
-    s.list.list_name = NULL;
     s.list.it_name   = NULL;
     s.list.stages    = NULL;
     da_make(s.list.stages);
@@ -39,6 +40,7 @@ Stage cond_stage_make()
     s.conditional.condition       = NULL;
     s.conditional.stages_if_true  = NULL;
     s.conditional.stages_if_false = NULL;
+    da_make(s.conditional.condition);
     da_make(s.conditional.stages_if_true);
     da_make(s.conditional.stages_if_false);
     return s;
@@ -58,13 +60,13 @@ void stage_free(Stage* stage)
         {
             if (stage->property.name)
                 string_free(&stage->property.name);
+
+            if (stage->property.parent)
+                string_free(&stage->property.parent);
         } break;
 
         case STAGE_LIST:
         {
-            if (stage->list.list_name)
-                string_free(&stage->list.list_name);
-
             if (stage->list.it_name)
                 string_free(&stage->list.it_name);
 
@@ -75,8 +77,9 @@ void stage_free(Stage* stage)
 
         case STAGE_CONDITIONAL:
         {
-            if (stage->conditional.condition)
-                string_free(&stage->conditional.condition);
+            da_foreach(Stage, s, stage->conditional.condition)
+                stage_free(s);
+            da_free(stage->conditional.condition);
 
             da_foreach(Stage, s, stage->conditional.stages_if_true)
                 stage_free(s);
@@ -109,11 +112,11 @@ void template_parser_free(Template_Parser* tp)
     da_free(tp->stages);
 }
 
-static int is_alpha_or_dot(char ch)
+static int is_alpha_or_us(char ch)
 {
     return (ch >= 'a' && ch <= 'z') ||
            (ch >= 'A' && ch <= 'Z') ||
-           ch == '.';
+           ch == '_';
 }
 
 static int is_ws(char ch)
@@ -140,8 +143,6 @@ static void consume_ws(Template_Parser* tp)
         consume(tp);
 }
 
-static void fill_stages(Template_Parser* tp, char end, DArray(Stage)* stages);
-
 #define TP_ERROR(tp, m) \
     do {                                                \
         tp->status = TP_FAILURE;                        \
@@ -153,7 +154,7 @@ static String get_identifier(Template_Parser* tp)
     consume_ws(tp);
 
     int start_idx = tp->cur_index;
-    while (is_alpha_or_dot(peek(tp, 0)))
+    while (is_alpha_or_us(peek(tp, 0)))
         consume(tp);
 
     if (tp->cur_index <= start_idx)
@@ -162,113 +163,97 @@ static String get_identifier(Template_Parser* tp)
     return string_make_till_n(tp->content + start_idx, tp->cur_index - start_idx);
 }
 
+static void fill_stages(Template_Parser* tp, char end, DArray(Stage)* stages);
+
 // Starts parsing after ->
-static Stage get_list(Template_Parser* tp, String name)
+static Stage get_list(Template_Parser* tp)
 {
     Stage list = list_stage_make();
-    list.list.list_name = name;
 
-    String it_name = get_identifier(tp);
-    if (!it_name)
+    String identifier = get_identifier(tp);
+    if (!identifier)
     {
-        TP_ERROR(tp, "Expected an iterator name in list tag.");
+        TP_ERROR(tp, "Expected identifer after -> in list tag");
         return list;
     }
 
-    list.list.it_name = it_name;
-
     consume_ws(tp);
+
     if (peek(tp, 0) != '{')
     {
-        TP_ERROR(tp, "Expected '{' in list tag.");
+        TP_ERROR(tp, "Expected template block (enclosed with {}) in list tag");
         return list;
     }
 
-    consume(tp);
-    fill_stages(tp, '}', &(list.list.stages));
+    list.list.it_name = identifier;
+    fill_stages(tp, '}', &list.list.stages);
 
-    if (peek(tp, 0) == '}')
-        consume(tp);
+    if (peek(tp, 0) != '}')
+        TP_ERROR(tp, "Template block must be closed with }");
     else
-    {
-        TP_ERROR(tp, "List block was never closed.");
-        return list;
-    }
-
-    consume_ws(tp);
-    if (peek(tp, 0) == '>')
         consume(tp);
-    else
-        TP_ERROR(tp, "List tag was never closed.");
 
     return list;
 }
 
-static Stage get_conditional(Template_Parser* tp)
+static Stage get_cond(Template_Parser* tp)
 {
-    Stage cond = cond_stage_make(STAGE_CONDITIONAL);
+    Stage cond = cond_stage_make();
 
-    String condition = get_identifier(tp);
-    if (!condition)
-        TP_ERROR(tp, "Expected a condition after if tag.");
+    fill_stages(tp, '{', &cond.conditional.condition);
+    
+    if (tp->status == TP_FAILURE)
+        return cond;
 
-    cond.conditional.condition = condition;
-
-    consume_ws(tp);
+    if (da_size(cond.conditional.condition) == 0)
+    {
+        TP_ERROR(tp, "Expected condition inside if tag");
+        return cond;
+    }
 
     if (peek(tp, 0) != '{')
     {
-        TP_ERROR(tp, "Expected '{' in if tag.");
+        TP_ERROR(tp, "Expected template block (enclosed with {}) in if tag");
         return cond;
     }
 
     consume(tp);
-    fill_stages(tp, '}', &(cond.conditional.stages_if_true));
+    fill_stages(tp, '}', &cond.conditional.stages_if_true);
+    
     if (peek(tp, 0) != '}')
-    {
-        TP_ERROR(tp, "If block wasn't closed with a '}'.");
-        return cond;
-    }
-
-    consume(tp);
-    consume_ws(tp);
-
-    if (peek(tp, 0) == '>')
-        consume(tp);
+        TP_ERROR(tp, "Template block must be closed with }");
     else
+        consume(tp);
+
+    if (tp->status == TP_FAILURE)
+        return cond;
+
+    String else_tag = get_identifier(tp);
+    if (else_tag)
     {
-        String indentifier = get_identifier(tp);
-        if (string_cmp(indentifier, "else"))
+        string_free(&else_tag);
+        consume_ws(tp);
+        
+        if (peek(tp, 0) != '{')
         {
-            consume_ws(tp);
-
-            if (peek(tp, 0) != '{')
-            {
-                TP_ERROR(tp, "Expected '{' after else in if tag.");
-                return cond;
-            }
-
-            consume(tp);
-            fill_stages(tp, '}', &(cond.conditional.stages_if_false));
-            if (peek(tp, 0) != '}')
-            {
-                TP_ERROR(tp, "Else block wasn't closed with a '}'.");
-                return cond;
-            }
-
-            consume(tp);
-            consume_ws(tp);
-
-            if (peek(tp, 0) == '>')
-                consume(tp);
-            else
-                TP_ERROR(tp, "If tag was never closed.");
+            TP_ERROR(tp, "Expected template block (enclosed with {}) after else tag");
+            return cond;
         }
-        else
-            TP_ERROR(tp, "If tag was never closed.");
 
-        string_free(&indentifier);
+        consume(tp);
+        fill_stages(tp, '}', &cond.conditional.stages_if_true);
+
+        if (peek(tp, 0) != '}')
+            TP_ERROR(tp, "Template block must be closed with }");
+        else
+            consume(tp);
+
+        if (tp->status == TP_FAILURE)
+            return cond;
     }
+
+    if (peek(tp, 0) != '>')
+        TP_ERROR(tp, "Expected > at the end of if tag");
 
     return cond;
 }
@@ -276,67 +261,112 @@ static Stage get_conditional(Template_Parser* tp)
 // tp->cur_index is stopped at the first instance of end char
 static void fill_stages(Template_Parser* tp, char end, DArray(Stage)* stages)
 {
+    int is_in_$tag = end == '{';
+    int tokens_in_$tag = 0;
+
     int len = string_length(tp->content);
     while (tp->status != TP_FAILURE && tp->cur_index < len)
     {
         consume_ws(tp);
 
-        // Collect all the plain html
-        int start_idx = tp->cur_index;
-        while (tp->cur_index < len &&
-               peek(tp, 0) != end  &&
-               (peek(tp, 0) != '<' || peek(tp, 1) != '$'))
-            consume(tp);
-
-        if (tp->cur_index > start_idx)
-        {
-            Stage html = html_stage_make();
-            html.html.content = string_make_till_n(tp->content + start_idx, tp->cur_index - start_idx);
-            da_push_back((*stages), html);
-        }
-
         if (peek(tp, 0) == end)
             break;
 
-        // Consume < and $
-        consume(tp); consume(tp);
-
-        // Determine which type of stage it is
-        String identifier = get_identifier(tp);
-        if (!identifier)
+        if (!is_in_$tag)
         {
-            TP_ERROR(tp, "Expected an idenifier or \"if\" inside $ tag.");
+            // Collect html till <$ is found
+            int start_idx = tp->cur_index;
+            while (tp->cur_index < len &&
+                   peek(tp, 0) != end)
+            {
+                if (peek(tp, 0) == '<' && peek(tp, 1) == '$')
+                {
+                    is_in_$tag = 1;
+                    consume(tp);
+                    consume(tp);
+                    break;
+                }
+
+                consume(tp);
+            }
+
+            if (tp->cur_index > start_idx)
+            {
+                Stage html = html_stage_make();
+                int length = tp->cur_index - start_idx - (is_in_$tag * 2);
+                html.html.content = string_make_till_n(tp->content + start_idx, length);
+                da_push_back((*stages), html);
+            }
+
             continue;
         }
 
-        if (string_cmp(identifier, "if"))
-        {
-            Stage conditional = get_conditional(tp);
-            da_push_back((*stages), conditional);
-        }
-        else
-        {
-            consume_ws(tp);
+        consume_ws(tp);
 
-            if (peek(tp, 0) == '-' && peek(tp, 1) == '>')
+        if (peek(tp, 0) == '-' && peek(tp, 1) == '>')
+        {
+            consume(tp); consume(tp);
+
+            if (tokens_in_$tag == 0)
             {
-                consume(tp); consume(tp);
-                Stage list = get_list(tp, identifier);
-                da_push_back((*stages), list);
-            }
-            else if (peek(tp, 0) == '>')
-            {
-                Stage prop = prop_stage_make();
-                prop.property.name = identifier;
-                da_push_back((*stages), prop);
-            }
-            else
-            {
-                TP_ERROR(tp, "$ tag must be closed with a >");
-                string_free(&identifier);
+                TP_ERROR(tp, "-> can only be used after a property");
                 continue;
             }
+
+            Stage list = get_list(tp);
+            da_push_back((*stages), list);
+            continue;            
         }
+
+        if (peek(tp, 0) == '>')
+        {
+            consume(tp);
+
+            if (tokens_in_$tag == 0)
+            {
+                TP_ERROR(tp, "$ tag cannot be empty");
+                continue;
+            }
+
+            is_in_$tag = 0;
+            tokens_in_$tag = 0;
+            continue;
+        }
+
+        if (peek(tp, 0) == 'i' && peek(tp, 1) == 'f')
+        {
+            consume(tp); consume(tp);
+            Stage cond = get_cond(tp);
+            da_push_back((*stages), cond);
+            tokens_in_$tag++;
+            continue;
+        }
+
+        String parent_name = NULL;
+
+        if (peek(tp, 0) == '.')
+        {
+            consume(tp);
+
+            int last_elem_idx = da_size((*stages)) - 1;
+            if (tokens_in_$tag == 0 ||
+                (*stages)[last_elem_idx].type != STAGE_PROPERTY)
+            {
+                TP_ERROR(tp, ". can only be used after a property");
+                continue;
+            }
+
+            string_copy(&parent_name, (*stages)[last_elem_idx].property.name);
+        }
+
+        Stage prop = prop_stage_make();
+        String prop_name = get_identifier(tp);
+
+        prop.property.name = prop_name;
+        prop.property.parent = parent_name;
+        da_push_back((*stages), prop);
+        
+        tokens_in_$tag++;
     }
 }
 
@@ -362,24 +392,26 @@ static void print_stages(DArray(Stage) stages)
         {
             case STAGE_HTML:
             {
-                printf("[ html ]\n");
+                printf("[ html: %s ]\n", s->html.content);
             } break;
 
             case STAGE_PROPERTY:
             {
-                printf("[ property: %s ]\n", s->property.name);
+                printf("[ property: %s parent: %s ]\n", s->property.name, s->property.parent);
             } break;
 
             case STAGE_LIST:
             {
-                printf("[ list: %s -> %s [\n", s->list.list_name, s->list.it_name);
+                printf("[ list: %s [\n", s->list.it_name);
                 print_stages(s->list.stages);
                 printf("\n]]\n");
             } break;
 
             case STAGE_CONDITIONAL:
             {
-                printf("[ conditional: (%s) true -> [\n", s->conditional.condition);
+                printf("[ conditional: (\n");
+                print_stages(s->conditional.condition);
+                printf(") true -> [\n", s->conditional.condition);
                 print_stages(s->conditional.stages_if_true);
                 printf(" ] false [\n");
                 print_stages(s->conditional.stages_if_false);
@@ -407,6 +439,94 @@ Webpage_Status template_parser_test(Portfolio portfolio)
     return WP_SUCCESS;
 }
 
+// static void add_to_buffer(DArray(char)* buffer, String str)
+// {
+//     int len = string_length(str);
+//     for (int i = 0; i < len; i++)
+//         da_push_back((*buffer), str[i]);
+// }
+
+// static Generation_Status fill_home(DArray(Stage) stages, DArray(Persona) personas, Dict(Webpage_Variable)* vars, DArray(char)* buffer)
+// {
+//     da_foreach(Stage, stage, stages)
+//     {
+//         switch (stage->type)
+//         {
+//             case STAGE_HTML:
+//             {
+//                 add_to_buffer(buffer, stage->html.content);
+//             } break;
+
+//             case STAGE_PROPERTY:
+//             {
+//                 Dict_Bkt(Webpage_Variable) var = dict_find((*vars), stage->property.name);
+
+//                 if (var)    // Variable already exists
+//                 {
+//                     if (var->value.type != WV_PROP) // Variable is of wrong type
+//                         return GEN_FAILURE;
+
+//                     add_to_buffer(buffer, var->value.prop.value);
+//                 }
+//                 else 
+//                 {
+//                     // Find out if it's a valid property
+//                 }
+//             } break;
+
+//             case STAGE_LIST:
+//             {
+//                 Dict_Bkt(Webpage_Variable) var = dict_find((*vars), stage->list.it_name);
+                
+//                 if (var) // Variable already declared
+//                     return GEN_FAILURE;
+
+//                 if (string_cmp(stage->list.list_name, "personas"))
+//                 {
+                    
+//                 }
+
+//                 if (string_cmp(stage->list.list_name, "abilities"))
+//                 {
+
+//                 }
+
+//                 if (string_cmp(stage->list.list_name, "projects"))
+//                 {
+
+//                 }
+
+//                 } break;
+//         }
+//     }
+
+//     return GEN_SUCCESS;
+// }
+
+// static String generate_home_page(DArray(Stage) stages, DArray(Persona) personas)
+// {
+//     DArray(char) buffer;
+//     Dict(Webpage_Variable) vars;
+
+//     fill_home(stages, personas, &vars, &buffer);
+
+//     String content = string_make(buffer);
+//     da_free(buffer);
+//     dict_free(vars);
+//     return content;
+// }
+
+// static String generate_persona_page(DArray(Stage) stages, DArray(Persona) personas, int index)
+// {
+//     DArray(char) buffer;
+
+//     fill_persona(stages, personas, index, buffer);
+
+//     String content = string_make(buffer);
+//     da_free(buffer);
+//     return content;
+// }
+
 // Webpage_Status generate_webpages(Portfolio portfolio)
 // {
 //     // Home Page
@@ -424,7 +544,7 @@ Webpage_Status template_parser_test(Portfolio portfolio)
 //         return WP_TEMPLATE_ERROR;
 //     }
 
-//     String content = fill_home_template(home_parser.stages, portfolio.peronas);
+//     String content = generate_home_page(home_parser.stages, portfolio.peronas);
 //     char filename[256];
 //     sprintf(filename, "%s/index.html", portfolio.outdir);
 //     int write_success = write_file(filename, content);
@@ -453,7 +573,7 @@ Webpage_Status template_parser_test(Portfolio portfolio)
 //     int num_portfolios = da_size(portfolio.peronas);
 //     for (int i = 0; write_success && i < num_portfolios; i++)
 //     {
-//         content = fill_page_template(page_parser.stages, portfolio.peronas, i);
+//         content = generate_persona_page(page_parser.stages, portfolio.peronas, i);
 //         sprintf(filename, "%s/%s.html", portfolio.outdir, portfolio.peronas[i].name);
         
 //         write_success = write_file(filename, content);

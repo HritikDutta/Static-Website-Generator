@@ -27,18 +27,18 @@ typedef struct Stage
         struct
         {
             String name;
+            String parent;
         } property;
 
         struct
         {
-            String list_name;
             String it_name;
             DArray(struct Stage) stages;
         } list;
 
         struct
         {
-            String condition;
+            DArray(struct Stage) condition;
             DArray(struct Stage) stages_if_true;
             DArray(struct Stage) stages_if_false;
         } conditional;
@@ -78,6 +78,55 @@ typedef enum
     WP_WRITE_ERROR,
     WP_SUCCESS
 } Webpage_Status;
+
+typedef enum
+{
+    GEN_NO_GEN,
+    GEN_FAILURE,
+    GEN_SUCCESS
+} Generation_Status;
+
+typedef enum
+{
+    WV_PROP,
+    WV_PERSONA,
+    WV_PROJECT,
+    WV_STRING_LIST,
+} Webpage_Variable_Type;
+
+typedef struct
+{
+    Webpage_Variable_Type type;
+    union
+    {
+        struct
+        {
+            String value;
+        } prop;
+
+        struct
+        {
+            int selected;
+            Persona data;
+        } persona;
+
+        struct
+        {
+            Project data;
+        } project;
+
+        struct
+        {
+            DArray(String) list;
+        } string_list;
+    };
+    
+} Webpage_Variable;
+
+Webpage_Variable wv_make_prop(String value);
+Webpage_Variable wv_make_persona(Persona data, int selected);
+Webpage_Variable wv_make_project(Project data);
+Webpage_Variable wv_make_slist(DArray(String) slist);
 
 Webpage_Status template_parser_test(Portfolio portfolio);
 Webpage_Status generate_webpages(String template, Portfolio portfolio);
