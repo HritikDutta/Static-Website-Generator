@@ -210,7 +210,7 @@ void dict_next_bucket_impl(void** bkt, void* end, size_t stride)
 
 #define dict_next_bucket(bkt, dict) dict_next_bucket_impl(&bkt, dict_end(dict), sizeof(*dict.buckets))
 
-#define dict_foreach(type, it, dict) for (Dict_Bkt(int) it = dict_begin(dict); \
+#define dict_foreach(type, it, dict) for (Dict_Bkt(type) it = dict_begin(dict); \
                                           it != dict_end(dict);                \
                                           dict_next_bucket(it, dict))
 
