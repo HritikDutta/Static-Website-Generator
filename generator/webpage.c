@@ -18,8 +18,8 @@ Stage prop_stage_make()
 {
     Stage s;
     s.type = STAGE_PROPERTY;
-    s.property.name   = NULL;
-    s.property.parent = NULL;
+    s.property.name         = NULL;
+    s.property.parent_index = -1;
     return s;
 }
 
@@ -27,8 +27,9 @@ Stage list_stage_make()
 {
     Stage s;
     s.type = STAGE_LIST;
-    s.list.it_name   = NULL;
-    s.list.stages    = NULL;
+    s.list.it_name      = NULL;
+    s.list.parent_index = -1;
+    s.list.stages       = NULL;
     da_make(s.list.stages);
     return s;
 }
@@ -60,9 +61,6 @@ void stage_free(Stage* stage)
         {
             if (stage->property.name)
                 string_free(&stage->property.name);
-
-            if (stage->property.parent)
-                string_free(&stage->property.parent);
         } break;
 
         case STAGE_LIST:
@@ -166,7 +164,7 @@ static String get_identifier(Template_Parser* tp)
 static void fill_stages(Template_Parser* tp, char end, DArray(Stage)* stages);
 
 // Starts parsing after ->
-static Stage get_list(Template_Parser* tp)
+static Stage get_list(Template_Parser* tp, DArray(Stage)* stages)
 {
     Stage list = list_stage_make();
 
@@ -185,7 +183,9 @@ static Stage get_list(Template_Parser* tp)
         return list;
     }
 
+    list.list.parent_index = da_size(tp->stages) - 1;
     list.list.it_name = identifier;
+
     fill_stages(tp, '}', &list.list.stages);
 
     if (peek(tp, 0) != '}')
@@ -261,6 +261,8 @@ static Stage get_cond(Template_Parser* tp)
 // tp->cur_index is stopped at the first instance of end char
 static void fill_stages(Template_Parser* tp, char end, DArray(Stage)* stages)
 {
+    // This is a bit hacky I guess but it'll reduce one
+    // argument that would've had to be passed.
     int is_in_$tag = end == '{';
     int tokens_in_$tag = 0;
 
@@ -313,7 +315,7 @@ static void fill_stages(Template_Parser* tp, char end, DArray(Stage)* stages)
                 continue;
             }
 
-            Stage list = get_list(tp);
+            Stage list = get_list(tp, stages);
             da_push_back((*stages), list);
             continue;            
         }
@@ -342,7 +344,7 @@ static void fill_stages(Template_Parser* tp, char end, DArray(Stage)* stages)
             continue;
         }
 
-        String parent_name = NULL;
+        int parent_index = -1;
 
         if (peek(tp, 0) == '.')
         {
@@ -356,14 +358,14 @@ static void fill_stages(Template_Parser* tp, char end, DArray(Stage)* stages)
                 continue;
             }
 
-            string_copy(&parent_name, (*stages)[last_elem_idx].property.name);
+            parent_index = last_elem_idx;
         }
 
         Stage prop = prop_stage_make();
         String prop_name = get_identifier(tp);
 
         prop.property.name = prop_name;
-        prop.property.parent = parent_name;
+        prop.property.parent_index = parent_index;
         da_push_back((*stages), prop);
         
         tokens_in_$tag++;
@@ -397,12 +399,18 @@ static void print_stages(DArray(Stage) stages)
 
             case STAGE_PROPERTY:
             {
-                printf("[ property: %s parent: %s ]\n", s->property.name, s->property.parent);
+                printf("[ property: %s parent: ", s->property.name);
+                if (s->property.parent_index != -1)
+                    printf(stages[s->property.parent_index].property.name);
+                else
+                    printf("(null)");
+                
+                printf(" ]\n");
             } break;
 
             case STAGE_LIST:
             {
-                printf("[ list: %s [\n", s->list.it_name);
+                printf("[ list: %s -> %s [\n", stages[s->list.parent_index].property.name, s->list.it_name);
                 print_stages(s->list.stages);
                 printf("\n]]\n");
             } break;
@@ -439,151 +447,279 @@ Webpage_Status template_parser_test(Portfolio portfolio)
     return WP_SUCCESS;
 }
 
-// static void add_to_buffer(DArray(char)* buffer, String str)
+static void add_to_buffer(Generator* gen, String str)
+{
+    int len = string_length(str);
+    for (int i = 0; i < len; i++)
+        da_push_back((gen->buffer), str[i]);
+}
+
+Generator generator_make(DArray(Stage) stages)
+{
+    Generator g = { 0 };
+    g.stages = stages;
+    da_make(g.buffer);
+    return g;
+}
+
+void generator_free(Generator* generator)
+{
+    da_foreach(Stage, stage, generator->stages)
+        stage_free(stage);
+    da_free(generator->stages);
+
+    da_free(generator->buffer);
+
+    if (generator->message)
+        string_free(&generator->message);
+}
+
+// #define GEN_ERROR(gen, m) \
+//     do {                                                  \
+//         gen->status  = GEN_FAILURE;                       \
+//         gen->message = string_make("Generator Error: "m); \
+//     } while (0)
+
+// static void fill_persona(Generator* gen, Stage* stage, Persona persona, Dict(Webpage_Variable)* vars)
 // {
-//     int len = string_length(str);
-//     for (int i = 0; i < len; i++)
-//         da_push_back((*buffer), str[i]);
+//     if (string_cmp(stage->property.name, "name"))
+//     {
+//         Webpage_Variable v = wv_make_prop(persona.name);
+//         dict_put((*vars), stage->property.name, v);
+//         add_to_buffer(gen, persona.name);
+//         return;
+//     }
+
+//     if (string_cmp(stage->property.name, "blerb"))
+//     {
+//         Webpage_Variable v = wv_make_prop(persona.blerb);
+//         dict_put((*vars), stage->property.name, v);
+//         add_to_buffer(gen, persona.blerb);
+//         return;
+//     }
+
+//     if (string_cmp(stage->property.name, "image"))
+//     {
+//         Webpage_Variable v = wv_make_prop(persona.image);
+//         dict_put((*vars), stage->property.name, v);
+//         add_to_buffer(gen, persona.image);
+//         return;
+//     }
+    
+//     if (string_cmp(stage->property.name, "icon"))
+//     {
+//         Webpage_Variable v = wv_make_prop(persona.icon);
+//         dict_put((*vars), stage->property.name, v);
+//         add_to_buffer(gen, persona.icon);
+//         return;
+//     }
+
+//     if (string_cmp(stage->property.name, "abilities"))
+//     {
+//         Webpage_Variable v = wv_make_slist(persona.abilities);
+//         dict_put((*vars), stage->property.name, v);
+//         return;
+//     }
+
+//     if (string_cmp(stage->property.name, "projects"))
+//     {
+//         Webpage_Variable v = wv_make_proj_list(persona.projects);
+//         dict_put((*vars), stage->property.name, v);
+//         return;
+//     }
+
+//     GEN_ERROR(gen, "Property not found");
 // }
 
-// static Generation_Status fill_home(DArray(Stage) stages, DArray(Persona) personas, Dict(Webpage_Variable)* vars, DArray(char)* buffer)
+// static void fill_project(Generator* gen, Stage* stage, Project project, Dict(Webpage_Variable)* vars)
+// {
+//     if (string_cmp(stage->property.name, "name"))
+//     {
+//         Webpage_Variable v = wv_make_prop(project.name);
+//         dict_put((*vars), stage->property.name, v);
+//         add_to_buffer(gen, project.name);
+//         return;
+//     }
+
+//     if (string_cmp(stage->property.name, "description"))
+//     {
+//         Webpage_Variable v = wv_make_prop(project.description);
+//         dict_put((*vars), stage->property.name, v);
+//         add_to_buffer(gen, project.description);
+//         return;
+//     }
+
+//     if (string_cmp(stage->property.name, "link"))
+//     {
+//         Webpage_Variable v = wv_make_prop(project.link);
+//         dict_put((*vars), stage->property.name, v);
+//         add_to_buffer(gen, project.link);
+//         return;
+//     }
+
+//     if (string_cmp(stage->property.name, "description"))
+//     {
+//         Webpage_Variable v = wv_make_prop(project.description);
+//         dict_put((*vars), stage->property.name, v);
+//         add_to_buffer(gen, project.description);
+//         return;
+//     }
+
+//     if (string_cmp(stage->property.name, "skills"))
+//     {
+//         Webpage_Variable v = wv_make_slist(project.skills);
+//         dict_put((*vars), stage->property.name, v);
+//         return;
+//     }
+
+//     GEN_ERROR(gen, "Property not found");
+// }
+
+// static void fill_buffer(Generator* gen, DArray(Stage) stages,
+//                         Portfolio portfolio, int selected_index,
+//                         Dict(Webpage_Variable)* vars)
 // {
 //     da_foreach(Stage, stage, stages)
 //     {
+//         if (gen->status == GEN_FAILURE)
+//             break;
+
 //         switch (stage->type)
 //         {
 //             case STAGE_HTML:
 //             {
-//                 add_to_buffer(buffer, stage->html.content);
+//                 add_to_buffer(gen, stage->html.content);
 //             } break;
 
 //             case STAGE_PROPERTY:
 //             {
-//                 Dict_Bkt(Webpage_Variable) var = dict_find((*vars), stage->property.name);
-
-//                 if (var)    // Variable already exists
+//                 if (stage->property.parent_index == -1)
 //                 {
-//                     if (var->value.type != WV_PROP) // Variable is of wrong type
-//                         return GEN_FAILURE;
+//                     Dict_Bkt(Webpage_Variable) var = dict_find((*vars), stage->property.name);
+                    
+//                     // If the variable was already cached
+//                     if (var != dict_end((*vars)))
+//                     {
+//                         if (var->value.type == WV_PROP)
+//                             add_to_buffer(gen, var->value.prop.value);
+    
+//                         break;
+//                     }
 
-//                     add_to_buffer(buffer, var->value.prop.value);
+//                     fill_persona(gen, stage, portfolio.peronas[selected_index], vars);
+//                     break;
 //                 }
-//                 else 
+
+//                 String parent_name = stages[stage->property.parent_index].property.name;
+//                 Dict_Bkt(Webpage_Variable) parent_var = dict_find((*vars), parent_name);
+                
+//                 if (parent_var == dict_end((*vars)))
 //                 {
-//                     // Find out if it's a valid property
+//                     GEN_ERROR(gen, "Parent variable is invalid");
+//                     break;
+//                 }
+
+//                 Dict_Bkt(Webpage_Variable) var = dict_find((*vars), stage->property.name);
+                    
+//                 // If the variable was already cached
+//                 if (var != dict_end((*vars)))
+//                 {
+//                     if (var->value.type == WV_PROP)
+//                         add_to_buffer(gen, var->value.prop.value);
+
+//                     break;
+//                 }
+
+//                 switch (parent_var->value.type)
+//                 {
+//                     case WV_PERSONA:
+//                     {
+//                         fill_persona(gen, stage, parent_var->value.persona.data, vars);
+//                     } break;
+
+//                     case WV_PROJECT:
+//                     {
+//                         fill_project(gen, stage, parent_var->value.project.data, vars);
+//                     } break;
+
+//                     case WV_PROP:
+//                     {
+//                         GEN_ERROR(gen, "Property doesn't have sub properties.");
+//                     } break;
+//                     case WV_STRING_LIST:
+//                     {
+//                         GEN_ERROR(gen, "String list doesn't have sub properties.");
+//                     } break;
 //                 }
 //             } break;
 
 //             case STAGE_LIST:
 //             {
-//                 Dict_Bkt(Webpage_Variable) var = dict_find((*vars), stage->list.it_name);
+//                 if (stage->list.parent_index == -1)
+//                 {
+//                     GEN_ERROR(gen, "List tag must have a parent property");
+//                     break;
+//                 }
+
+//                 String parent_name = stages[stage->list.parent_index].property.name;
+
+//                 if (string_cmp(parent_name, "personas"))
+//                 {
+//                     int size = da_size(portfolio.peronas);
+//                     for (int i = 0; gen->status != GEN_FAILURE && i < size; i++)
+//                     {
+//                         Webpage_Variable v = wv_make_persona(portfolio.peronas[i], selected_index == i);
+//                         dict_put((*vars), stage->list.it_name, v);
+//                         fill_buffer(gen, stage->list.stages, portfolio, selected_index, vars);
+//                     }
+//                     break;
+//                 }
+
+//                 if (string_cmp(parent_name, "projects"))
+//                 {
+
+//                     break;
+//                 }
                 
-//                 if (var) // Variable already declared
-//                     return GEN_FAILURE;
-
-//                 if (string_cmp(stage->list.list_name, "personas"))
+//                 if (string_cmp(parent_name, "abilities"))
 //                 {
-                    
+//                     break;
 //                 }
 
-//                 if (string_cmp(stage->list.list_name, "abilities"))
+//                 if (string_cmp(parent_name, "skills"))
 //                 {
-
+//                     break;
 //                 }
-
-//                 if (string_cmp(stage->list.list_name, "projects"))
-//                 {
-
-//                 }
-
-//                 } break;
+//             } break;
 //         }
 //     }
-
-//     return GEN_SUCCESS;
 // }
 
-// static String generate_home_page(DArray(Stage) stages, DArray(Persona) personas)
+// #undef GEN_ERROR
+
+// void generate_persona_page(Generator* generator, Portfolio portfolio, int selected_index)
 // {
-//     DArray(char) buffer;
+//     // Just in case
+//     generator->cur_index = 0;
+//     generator->status = GEN_NO_GEN;
+
 //     Dict(Webpage_Variable) vars;
+    
+//     fill_buffer(generator, generator->stages, portfolio, selected_index, &vars);
+    
+//     dict_foreach(Webpage_Variable, var, vars)
+//     {
+//         if (var->key)
+//             string_free(&var->key);
 
-//     fill_home(stages, personas, &vars, &buffer);
-
-//     String content = string_make(buffer);
-//     da_free(buffer);
-//     dict_free(vars);
-//     return content;
+//         wv_free(&var->value);
+//     }
 // }
 
-// static String generate_persona_page(DArray(Stage) stages, DArray(Persona) personas, int index)
+// String generator_output(Generator* generator)
 // {
-//     DArray(char) buffer;
+//     if (generator->status != GEN_SUCCESS)
+//         return NULL;
 
-//     fill_persona(stages, personas, index, buffer);
-
-//     String content = string_make(buffer);
-//     da_free(buffer);
-//     return content;
-// }
-
-// Webpage_Status generate_webpages(Portfolio portfolio)
-// {
-//     // Home Page
-
-//     String home_template = load_file(portfolio.home_template);
-//     if (!home_template)
-//         return WP_MISSING_TEMPLATE;
-
-//     Template_Parser home_parser = template_parser_make(home_template);
-//     template_parser_parse(&home_parser);
-    
-//     if (home_parser.status != TP_SUCCESS)
-//     {
-//         template_parser_free(&home_parser);
-//         return WP_TEMPLATE_ERROR;
-//     }
-
-//     String content = generate_home_page(home_parser.stages, portfolio.peronas);
-//     char filename[256];
-//     sprintf(filename, "%s/index.html", portfolio.outdir);
-//     int write_success = write_file(filename, content);
-
-//     template_parser_free(&home_parser);
-//     string_free(&content);
-    
-//     if (!write_success)
-//         return WP_WRITE_ERROR;
-
-//     // Personas
-    
-//     String page_template = load_file(portfolio.page_template);
-//     if (!page_template)
-//         return WP_MISSING_TEMPLATE;
-
-//     Template_Parser page_parser = template_parser_make(page_template);
-//     template_parser_parse(&page_parser);
-
-//     if (page_parser.status != TP_SUCCESS)
-//     {
-//         template_parser_free(&page_parser);
-//         return WP_TEMPLATE_ERROR;
-//     }
-
-//     int num_portfolios = da_size(portfolio.peronas);
-//     for (int i = 0; write_success && i < num_portfolios; i++)
-//     {
-//         content = generate_persona_page(page_parser.stages, portfolio.peronas, i);
-//         sprintf(filename, "%s/%s.html", portfolio.outdir, portfolio.peronas[i].name);
-        
-//         write_success = write_file(filename, content);
-//         string_free(&content);
-//     }
-
-//     template_parser_free(&page_parser);
-
-//     if (!write_success)
-//         return WP_WRITE_ERROR;
-
-//     return WP_SUCCESS;
+//     return string_make(generator->buffer);
 // }

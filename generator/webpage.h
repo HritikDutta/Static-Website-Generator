@@ -27,12 +27,13 @@ typedef struct Stage
         struct
         {
             String name;
-            String parent;
+            int parent_index;
         } property;
 
         struct
         {
             String it_name;
+            int parent_index;
             DArray(struct Stage) stages;
         } list;
 
@@ -84,13 +85,28 @@ typedef enum
     GEN_NO_GEN,
     GEN_FAILURE,
     GEN_SUCCESS
-} Generation_Status;
+} Generator_Status;
+
+typedef struct
+{
+    DArray(Stage) stages;
+    int cur_index;
+    DArray(char) buffer;
+    Generator_Status status;
+    String message;
+} Generator;
+
+Generator generator_make();
+void generator_free(Generator* generator);
+void generate_persona_page(Generator* generator);
+String generator_output(Generator* generator);
 
 typedef enum
 {
     WV_PROP,
     WV_PERSONA,
     WV_PROJECT,
+    WV_PROJECT_LIST,
     WV_STRING_LIST,
 } Webpage_Variable_Type;
 
@@ -117,6 +133,11 @@ typedef struct
 
         struct
         {
+            DArray(Project) list;
+        } proj_list;
+
+        struct
+        {
             DArray(String) list;
         } string_list;
     };
@@ -126,7 +147,9 @@ typedef struct
 Webpage_Variable wv_make_prop(String value);
 Webpage_Variable wv_make_persona(Persona data, int selected);
 Webpage_Variable wv_make_project(Project data);
+Webpage_Variable wv_make_proj_list(DArray(Project) data);
 Webpage_Variable wv_make_slist(DArray(String) slist);
+void wv_free(Webpage_Variable* var);
 
 Webpage_Status template_parser_test(Portfolio portfolio);
 Webpage_Status generate_webpages(String template, Portfolio portfolio);
