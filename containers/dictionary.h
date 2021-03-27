@@ -11,26 +11,12 @@
 #endif // DICT_GROWTH_RATE
 
 #ifndef DICT_START_CAP
-#define DICT_START_CAP 16
+#define DICT_START_CAP 1024
 #endif // DICT_START_CAP
 
 #ifndef DICT_MAX_LOAD
 #define DICT_MAX_LOAD 0.75
 #endif // DICT_MAX_LOAD
-
-inline size_t dict_string_hasher(String key)
-{
-    size_t prime = 16794649U;
-    size_t val = (size_t) key[0];
-
-    for (int i = 0; key[i] != '\0'; i++)
-    {
-        val ^= (size_t) key[i];
-        val *= prime;
-    }
-
-    return val;
-}
 
 #define Dict(type) \
     struct              \
@@ -46,7 +32,7 @@ inline size_t dict_string_hasher(String key)
     }
 
 #define Dict_Bkt(type) \
-    struct Dict_Bkt_Ptr \
+    struct              \
     {                   \
         String key;     \
         type value;     \
@@ -65,27 +51,6 @@ typedef struct
 } Dict_Itr;
 
 #define dict_bucket_at(buckets, index, bkt_size) (void*)((char*) buckets + index * bkt_size)
-
-Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key)
-{
-    size_t index = dict_string_hasher(key) % cap;
-    size_t start = index;
-
-    do
-    {
-        Dict_Bucket_Internal* bkt = dict_bucket_at(buckets, index, bkt_size);
-
-        if (bkt->key == NULL)
-            break;
-        
-        if (string_cmp(bkt->key, key))
-            return (Dict_Itr){ index, bkt };
-
-        index = (index + 1) % cap;
-    } while (index != start);
-
-    return (Dict_Itr){ cap, dict_bucket_at(buckets, cap, bkt_size) };
-}
 
 #define dict_make(dict) \
     do                                                                \
@@ -189,6 +154,56 @@ Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key
 #define dict_cap(dict)    (dict.cap)
 #define dict_filled(dict) (dict.filled)
 
+#define dict_next_bucket(bkt, dict) dict_next_bucket_impl(&bkt, dict_end(dict), sizeof(*dict.buckets))
+
+#define dict_foreach(type, it, dict) for (Dict_Bkt(type) it = dict_begin(dict); \
+                                          it != dict_end(dict);                \
+                                          dict_next_bucket(it, dict))
+
+size_t dict_string_hasher(String key);
+Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key);
+void dict_next_bucket_impl(void** bkt, void* end, size_t stride);
+
+#endif // DICTIONARY_H
+
+
+#ifdef DICTIONARY_IMPL
+
+inline size_t dict_string_hasher(String key)
+{
+    size_t prime = 16794649U;
+    size_t val = (size_t) key[0];
+
+    for (int i = 0; key[i] != '\0'; i++)
+    {
+        val ^= (size_t) key[i];
+        val *= prime;
+    }
+
+    return val;
+}
+
+Dict_Itr dict_find_bucket(void* buckets, size_t cap, size_t bkt_size, String key)
+{
+    size_t index = dict_string_hasher(key) % cap;
+    size_t start = index;
+
+    do
+    {
+        Dict_Bucket_Internal* bkt = dict_bucket_at(buckets, index, bkt_size);
+
+        if (bkt->key == NULL)
+            break;
+        
+        if (string_cmp(bkt->key, key))
+            return (Dict_Itr){ index, bkt };
+
+        index = (index + 1) % cap;
+    } while (index != start);
+
+    return (Dict_Itr){ cap, dict_bucket_at(buckets, cap, bkt_size) };
+}
+
 void dict_next_bucket_impl(void** bkt, void* end, size_t stride)
 {
     void* itr = *bkt;
@@ -208,10 +223,4 @@ void dict_next_bucket_impl(void** bkt, void* end, size_t stride)
     *bkt = itr;
 }
 
-#define dict_next_bucket(bkt, dict) dict_next_bucket_impl(&bkt, dict_end(dict), sizeof(*dict.buckets))
-
-#define dict_foreach(type, it, dict) for (Dict_Bkt(type) it = dict_begin(dict); \
-                                          it != dict_end(dict);                \
-                                          dict_next_bucket(it, dict))
-
-#endif // DICTIONARY_H
+#endif // DICTIONRY_IMPL
