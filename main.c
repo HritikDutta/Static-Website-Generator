@@ -30,7 +30,9 @@ int main(int argc, char* argv[])
     Parser parser = parser_make(lexer.tokens);
     Portfolio portfolio = parser_parse(&parser);
 
-    template_parser_test(portfolio);
+    // template_parser_test(portfolio);
+
+    generate_webpages(portfolio);
 
     parser_free(&parser);
     portfolio_free(&portfolio);
