@@ -86,59 +86,59 @@ Webpage_Status generate_webpages(Portfolio portfolio);
 
 typedef enum
 {
-    WV_PROP,
-    WV_PERSONA,
-    WV_PERSONA_LIST,
-    WV_PROJECT,
-    WV_PROJECT_LIST,
-    WV_STRING_LIST,
-} Webpage_Variable_Type;
+    VAR_NONE,
+    VAR_BOOL,
+    VAR_PERSONA,
+    VAR_PROJECT,
+    VAR_STRING,
+    VAR_STRING_LIST,
+    VAR_PROJECT_LIST,
+    VAR_PERSONA_LIST,
+} Variable_Type;
 
 typedef struct
 {
-    Webpage_Variable_Type type;
+    Variable_Type type;
     union
     {
-        struct
-        {
-            String value;
-        } prop;
+        struct {
+            int value;
+        } bool;
 
-        struct
-        {
+        struct {
             int selected;
             Persona data;
         } persona;
 
-        struct
-        {
-            DArray(Persona) list;
-        } persona_list;
-
-        struct
-        {
+        struct {
             Project data;
         } project;
 
-        struct
-        {
-            DArray(Project) list;
-        } proj_list;
+        struct {
+            String data;
+        } string;
 
-        struct
-        {
+        struct {
             DArray(String) list;
         } string_list;
-    };
-    
-} Webpage_Variable;
 
-Webpage_Variable wv_make_prop(String value);
-Webpage_Variable wv_make_persona(Persona data, int selected);
-Webpage_Variable wv_make_persona_list(DArray(Persona) list);
-Webpage_Variable wv_make_project(Project data);
-Webpage_Variable wv_make_proj_list(DArray(Project) list);
-Webpage_Variable wv_make_slist(DArray(String) slist);
+        struct {
+            DArray(Project) list;
+        } project_list;
+
+        struct {
+            DArray(Persona) list;
+        } persona_list;
+    };
+} Variable;
+
+Variable var_make_bool(int value);
+Variable var_make_persona(Persona data, int selected);
+Variable var_make_project(Project data);
+Variable var_make_string(String data);
+Variable var_make_string_list(DArray(String) list);
+Variable var_make_persona_list(DArray(Persona) list);
+Variable var_make_project_list(DArray(Project) list);
 
 typedef enum
 {
@@ -149,7 +149,7 @@ typedef enum
 
 typedef struct
 {
-    Dict(Webpage_Variable) vars;    
+    Dict(Variable) vs;
     DArray(Stage) stages;
     int cur_index;
     DArray(char) buffer;
