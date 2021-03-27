@@ -45,3 +45,6 @@
 # Visual Studio Stuff
 .vs
 .vscode
+
+# Other stuff
+website/
