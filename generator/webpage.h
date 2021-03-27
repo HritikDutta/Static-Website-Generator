@@ -1,8 +1,9 @@
 #pragma once
 
 #include "portfolio.h"
-#include "containers\string.h"
-#include "containers\darray.h"
+#include "containers/string.h"
+#include "containers/darray.h"
+#include "containers/dictionary.h"
 
 typedef enum
 {
@@ -80,31 +81,14 @@ typedef enum
     WP_SUCCESS
 } Webpage_Status;
 
-typedef enum
-{
-    GEN_NO_GEN,
-    GEN_FAILURE,
-    GEN_SUCCESS
-} Generator_Status;
-
-typedef struct
-{
-    DArray(Stage) stages;
-    int cur_index;
-    DArray(char) buffer;
-    Generator_Status status;
-    String message;
-} Generator;
-
-Generator generator_make();
-void generator_free(Generator* generator);
-void generate_persona_page(Generator* generator);
-String generator_output(Generator* generator);
+Webpage_Status template_parser_test(Portfolio portfolio);
+Webpage_Status generate_webpages(Portfolio portfolio);
 
 typedef enum
 {
     WV_PROP,
     WV_PERSONA,
+    WV_PERSONA_LIST,
     WV_PROJECT,
     WV_PROJECT_LIST,
     WV_STRING_LIST,
@@ -128,6 +112,11 @@ typedef struct
 
         struct
         {
+            DArray(Persona) list;
+        } persona_list;
+
+        struct
+        {
             Project data;
         } project;
 
@@ -146,10 +135,30 @@ typedef struct
 
 Webpage_Variable wv_make_prop(String value);
 Webpage_Variable wv_make_persona(Persona data, int selected);
+Webpage_Variable wv_make_persona_list(DArray(Persona) list);
 Webpage_Variable wv_make_project(Project data);
-Webpage_Variable wv_make_proj_list(DArray(Project) data);
+Webpage_Variable wv_make_proj_list(DArray(Project) list);
 Webpage_Variable wv_make_slist(DArray(String) slist);
-void wv_free(Webpage_Variable* var);
 
-Webpage_Status template_parser_test(Portfolio portfolio);
-Webpage_Status generate_webpages(String template, Portfolio portfolio);
+typedef enum
+{
+    GEN_NO_GEN,
+    GEN_FAILURE,
+    GEN_SUCCESS
+} Generator_Status;
+
+typedef struct
+{
+    Dict(Webpage_Variable) vars;    
+    DArray(Stage) stages;
+    int cur_index;
+    DArray(char) buffer;
+    Generator_Status status;
+    String message;
+} Generator;
+
+Generator generator_make(DArray(Stage) stages);
+void generator_free(Generator* generator);
+void generator_reset(Generator* generator);
+void generate_persona_page(Generator* generator, Portfolio portfolio, int selected_index);
+String generator_output(Generator generator);
