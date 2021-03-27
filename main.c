@@ -27,12 +27,41 @@ int main(int argc, char* argv[])
     Lexer lexer = lexer_make(contents);
     lexer_lex(&lexer);
 
+    if (lexer.status == LEXER_FAILURE)
+    {
+        printf("%s\n", lexer.message);
+        return 1;
+    }
+
     Parser parser = parser_make(lexer.tokens);
     Portfolio portfolio = parser_parse(&parser);
 
+    if (parser.status == PARSER_FAILURE)
+    {
+        printf("%s\n", parser.message);
+        return 1;
+    }
+
     // template_parser_test(portfolio);
 
-    generate_webpages(portfolio);
+    Webpage_Status status = generate_webpages(portfolio);
+    switch (status)
+    {
+        case WP_MISSING_TEMPLATE:
+        {
+            printf("Template not found.\n");
+        } break;
+
+        case WP_WRITE_ERROR:
+        {
+            printf("Couldn't write to file.\n");
+        } break;
+
+        case WP_TEMPLATE_ERROR:
+        {
+            printf("Error generating webpage.\n");
+        } break;
+    }
 
     parser_free(&parser);
     portfolio_free(&portfolio);
