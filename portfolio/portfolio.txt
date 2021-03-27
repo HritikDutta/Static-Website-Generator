@@ -2,7 +2,7 @@ $home_template "portfolio/home_template.html"
 $page_template "portfolio/page_template.html"
 $outdir        "website"
 
-$persona "Writer"
+// $persona "Writer"
 
 $persona "Film Maker" {
     color: "#f72323";
