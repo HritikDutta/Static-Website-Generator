@@ -639,7 +639,7 @@ Portfolio parser_parse(Parser* parser)
                 Persona persona = parse_persona(parser);
 
                 if (parser->status != PARSER_FAILURE)
-                    da_push_back(portfolio.peronas, persona);
+                    da_push_back(portfolio.personas, persona);
                 else
                     persona_free(&persona);
 

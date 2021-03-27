@@ -84,7 +84,7 @@ void portfolio_free(Portfolio* portfolio)
     if (portfolio->outdir)
         string_free(&portfolio->outdir);
 
-    da_foreach(Persona, persona, portfolio->peronas)
+    da_foreach(Persona, persona, portfolio->personas)
         persona_free(persona);
-    da_free(portfolio->peronas);
+    da_free(portfolio->personas);
 }

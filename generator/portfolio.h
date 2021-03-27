@@ -34,7 +34,7 @@ typedef struct
     String home_template;
     String page_template;
     String outdir;
-    DArray(Persona) peronas;
+    DArray(Persona) personas;
 } Portfolio;
 
 Portfolio portfolio_make();
