@@ -747,7 +747,7 @@ Webpage_Status generate_webpages(Portfolio portfolio)
         if (gen.status == GEN_FAILURE)
         {
             printf("%s\n", gen.message);
-            break;
+            return WP_TEMPLATE_ERROR;
         }
 
         String output = generator_output(gen);
@@ -757,6 +757,8 @@ Webpage_Status generate_webpages(Portfolio portfolio)
 
         if (!res)
             return WP_WRITE_ERROR;
+
+        printf("%s\n", filename);
 
         generator_reset(&gen);
         string_free(&output);
