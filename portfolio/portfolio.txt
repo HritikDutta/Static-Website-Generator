@@ -20,19 +20,6 @@ $persona "Film Maker" {
     the help of my friends. You can see these projects below.`;
     projects: [
         {
-            name: "Deadline";
-            date: "20th March 2021";
-            desc: `A description for deadline.`;
-            link: "https://www.youtube.com/video/Deadline";
-            skills: [
-                "Acting",
-                "Direction",
-                "Cinematography",
-                "Editing",
-                "Sound Design",
-            ];
-        },
-        {
             name: "Pratibimb";
             date: "31st August 2021";
             desc: `A description for pratibimb.`;
@@ -43,6 +30,19 @@ $persona "Film Maker" {
                 "Cinematography",
                 "Editing",
                 "Colour Grading"
+            ];
+        },
+        {
+            name: "Deadline";
+            date: "20th March 2021";
+            desc: `A description for deadline.`;
+            link: "https://www.youtube.com/video/Deadline";
+            skills: [
+                "Acting",
+                "Direction",
+                "Cinematography",
+                "Editing",
+                "Sound Design",
             ];
         },
     ];
@@ -68,7 +68,7 @@ $persona "Programmer" {
 }
 
 $persona "Game Developer" {
-    color: "#f3d73b";   // Some green color here
+    color: "#5bba46";
     image: "res/images/game-dev.png";
     icon:  "res/icons/game-dev.png";
     abilities: [
