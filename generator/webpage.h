@@ -160,5 +160,5 @@ typedef struct
 Generator generator_make(DArray(Stage) stages);
 void generator_free(Generator* generator);
 void generator_reset(Generator* generator);
-void generate_persona_page(Generator* generator, Portfolio portfolio, int selected_index);
+void generate_page(Generator* generator, Portfolio portfolio, int selected_index);
 String generator_output(Generator generator);

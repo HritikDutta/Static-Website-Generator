@@ -711,7 +711,7 @@ static void fill_buffer(Generator* gen, DArray(Stage) stages,
 
 #undef GEN_ERROR
 
-void generate_persona_page(Generator* generator, Portfolio portfolio, int selected_index)
+void generate_page(Generator* generator, Portfolio portfolio, int selected_index)
 {
     // Just in case
     generator->cur_index = 0;
@@ -725,11 +725,47 @@ void generate_persona_page(Generator* generator, Portfolio portfolio, int select
 
 Webpage_Status generate_webpages(Portfolio portfolio)
 {
+    String home_template = load_file(portfolio.home_template);
+    if (!home_template)
+        return WP_MISSING_TEMPLATE;
+
+    Template_Parser tp = template_parser_make(home_template);
+    template_parser_parse(&tp);    
+
+    if (tp.status == GEN_FAILURE)
+    {
+        printf("%s\n", tp.message);
+        return WP_TEMPLATE_ERROR;
+    }
+
+    Generator gen = generator_make(tp.stages);
+    generate_page(&gen, portfolio, -1);
+
+    if (gen.status == GEN_FAILURE)
+    {
+        printf("%s\n", gen.message);
+        return WP_TEMPLATE_ERROR;
+    }
+
+    String home_output = generator_output(gen);
+    char filename[128];
+    sprintf(filename, "%s/index.html", portfolio.outdir);
+    int res = write_file(filename, home_output);
+
+    if (!res)
+        return WP_WRITE_ERROR;
+
+    printf("%s\n", filename);
+
+    generator_free(&gen);
+    string_free(&home_output);
+    string_free(&home_template);
+
     String page_template = load_file(portfolio.page_template);
     if (!page_template)
         return WP_MISSING_TEMPLATE;
 
-    Template_Parser tp = template_parser_make(page_template);
+    tp = template_parser_make(page_template);
     template_parser_parse(&tp);
 
     if (tp.status == TP_FAILURE)
@@ -738,11 +774,11 @@ Webpage_Status generate_webpages(Portfolio portfolio)
         return WP_TEMPLATE_ERROR;
     }
 
-    Generator gen = generator_make(tp.stages);
+    gen = generator_make(tp.stages);
     int num_personas = da_size(portfolio.personas);
     for (int i = 0; gen.status != GEN_FAILURE && i < num_personas; i++)
     {
-        generate_persona_page(&gen, portfolio, i);
+        generate_page(&gen, portfolio, i);
         
         if (gen.status == GEN_FAILURE)
         {
@@ -751,7 +787,6 @@ Webpage_Status generate_webpages(Portfolio portfolio)
         }
 
         String output = generator_output(gen);
-        char filename[128];
         sprintf(filename, "%s/%s.html", portfolio.outdir, portfolio.personas[i].name);
         int res = write_file(filename, output);
 
@@ -764,8 +799,8 @@ Webpage_Status generate_webpages(Portfolio portfolio)
         string_free(&output);
     }
 
-    // template_parser_free(&tp);
     generator_free(&gen);
+    string_free(&page_template);
 
     if (gen.status != GEN_SUCCESS)
         return WP_TEMPLATE_ERROR;
