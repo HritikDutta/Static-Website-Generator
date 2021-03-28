@@ -6,10 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hritik the <$name></title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Paytone+One&family=Poppins:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
-    <link rel="shortcut icon" href="res/icons/filmmaker.png" />
+    <link rel="shortcut icon" href="<$icon>" />
     <style>
         .signature-color {
             color: <$color>;
@@ -17,16 +16,27 @@
     </style>
 </head>
 <body>
-    <$personas -> p {
-        <$if p.selected {
-            <div class="link selected">
-        } else {
-            <div class="link">
-        }>
-            <a href="<$p.name>.html"><img src="<$p.image>" /></a>
-            <h6 style="color: <$p.color>;"><$p.name></h6>
+    <nav id="navbar" class="container">
+        <div id="links">
+            <span id="select-hritik" class="special-text">Select your Hritik</span>
+            <div id="links" class="special-text">
+                <$personas -> p {
+                    <$if p.selected {
+                        <div class="link selected">
+                    } else {
+                        <div class="link">
+                    }>
+                        <a href="<$p.name>.html"><img src="<$p.icon>" /></a>
+                        <h6 style="color: <$p.color>;"><$p.name></h6>
+                    </div>
+                }>
+            </div>
         </div>
-    }>
+        <div id="details">
+            <div class="special-text">dutta.hritk@gmail.com</div>
+            <div class="special-text">+91 78383 89522</div>
+        </div>
+    </nav>
 
     <section id="about-character" class="container">
         <h1 class="special-text">Hritik the <span class="signature-color"><$name></span></h1>
@@ -56,17 +66,17 @@
                     <nav>
                         <a href="<$p.link>" class="project-title special-text signature-color"><$p.name></a>
                         <div class="project-date grey-text"><$p.date></div>
-                        <ul>
-                            <$p.skills -> s {
-                                <li class="project-skill grey-text"><$s></li>
-                            }>
-                        </ul>
-                        <p>
-                            <$p.description>
-                        </p>
                     </nav>
+                    <ul>
+                        <$p.skills -> s {
+                            <li class="project-skill grey-text"><$s></li>
+                        }>
+                    </ul>
+                    <p>
+                        <$p.description>
+                    </p>
                 </div>
-            }>            
+            }>
         </div>
     </section>
 </body>
