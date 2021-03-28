@@ -42,8 +42,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // template_parser_test(portfolio);
-
     Webpage_Status status = generate_webpages(portfolio);
     switch (status)
     {
