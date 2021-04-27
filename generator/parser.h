@@ -26,6 +26,7 @@ typedef struct
 {
     Token_Type type;
     String value;
+    int lineNumber;
 } Token;
 
 typedef enum
@@ -39,6 +40,7 @@ typedef struct
 {
     String contents;
     int index;
+    int currentLine;
     DArray(Token) tokens;
     Lexer_Status status;
     String message;

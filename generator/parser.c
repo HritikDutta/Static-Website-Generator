@@ -15,7 +15,7 @@ Lexer lexer_make(String contents)
 {
     DArray(Token) tokens = NULL;
     da_make(tokens);
-    return (Lexer){ contents, 0, tokens, LEXER_NO_LEX, NULL };
+    return (Lexer){ contents, 0, 0, tokens, LEXER_NO_LEX, NULL };
 }
 
 void lexer_free(Lexer* lexer)
@@ -55,20 +55,27 @@ static char peek(Lexer* lexer, int offset)
 
 static char consume(Lexer* lexer)
 {
+    if (lexer->contents[lexer->index] == '\n')
+        lexer->currentLine++;
+    
     return lexer->contents[lexer->index++];
 }
 
 void lexer_lex(Lexer* lexer)
 {
     #define LEX_ERROR(m) \
-        do {                                                \
-            lexer->status = LEXER_FAILURE;                  \
-            lexer->message = string_make("Lexer Error: "m); \
+        do {                                                  \
+            lexer->status = LEXER_FAILURE;                    \
+            lexer->message = string_make("Lexer Error: "m);   \
+            char lineString[32];                              \
+            sprintf(lineString, " (%d)", lexer->currentLine); \
+            string_append(&lexer->message, lineString);       \
         } while (0)
 
     // Just in case
     lexer->index = 0;
     lexer->status = LEXER_NO_LEX;
+    lexer->currentLine = 0;
 
     int len = string_length(lexer->contents);
     while (lexer->status != LEXER_FAILURE && lexer->index < len)
@@ -87,7 +94,7 @@ void lexer_lex(Lexer* lexer)
             case TOKEN_SEMI_COLON:
             case TOKEN_COMMA:
             {
-                Token t = { ch, NULL };
+                Token t = { ch, NULL , lexer->currentLine};
                 da_push_back(lexer->tokens, t);
                 consume(lexer);
             } break;
@@ -121,12 +128,12 @@ void lexer_lex(Lexer* lexer)
                 {
                     int length = end_index - start_index;
                     String str = string_make_till_n(lexer->contents + start_index, length);
-                    Token t = { TOKEN_STRING, str };
+                    Token t = { TOKEN_STRING, str, lexer->currentLine };
                     da_push_back(lexer->tokens, t);
                     consume(lexer);
                 }
                 else
-                    LEX_ERROR("Couldn't find closing '\"' for string.");
+                    LEX_ERROR("Couldn't find closing '\"' for string");
             } break;
 
             case '/':
@@ -156,10 +163,10 @@ void lexer_lex(Lexer* lexer)
                     }
 
                     if (!comment_is_valid)
-                        LEX_ERROR("Block comment doesn't end.");
+                        LEX_ERROR("Block comment doesn't end");
                 }
                 else
-                    LEX_ERROR("Expected 2 '/'s for comment. Got single '/'.");
+                    LEX_ERROR("Expected 2 '/'s for comment. Got single '/'");
             } break;
 
             default:
@@ -178,7 +185,7 @@ void lexer_lex(Lexer* lexer)
 
                     int length = end_index - start_index;
                     String str = string_make_till_n(lexer->contents + start_index, length);
-                    Token t = { TOKEN_INDENTIFIER, str };
+                    Token t = { TOKEN_INDENTIFIER, str, lexer->currentLine };
                     da_push_back(lexer->tokens, t);
                 }
                 else consume(lexer);
@@ -241,15 +248,18 @@ static void advance_token(Parser* parser)
 }
 
 #define PARSE_ERROR(m) \
-    do {                                                \
-        parser->status = PARSER_FAILURE;                \
-        parser->message = string_make("Parse Error: "m);\
+    do {                                                 \
+        parser->status = PARSER_FAILURE;                 \
+        parser->message = string_make("Parse Error: "m); \
+        char lineString[32];                             \
+        sprintf(lineString, " (%d)", parser->tokens[parser->current_token_idx].lineNumber);\
+        string_append(&parser->message, lineString);     \
     } while (0)
 
 #define CHECK_STATEMENT_END() \
     do {                                                    \
         if (!curr_token_is_type(parser, TOKEN_SEMI_COLON))  \
-            PARSE_ERROR("Statements must end with a ';'."); \
+            PARSE_ERROR("Statements must end with a ';'"); \
         else                                                \
             advance_token(parser);                          \
     } while (0)
@@ -263,7 +273,7 @@ static void fill_string_array(Parser* parser, DArray(String)* arr)
     {
         if (parser->current_token_idx >= num_tokens)
         {
-            PARSE_ERROR("String array was never closed with ']'.");
+            PARSE_ERROR("String array was never closed with ']'");
             continue;
         }
 
@@ -285,7 +295,7 @@ static void fill_string_array(Parser* parser, DArray(String)* arr)
             break;
         }
 
-        PARSE_ERROR("Unexpected token found in string array.");
+        PARSE_ERROR("Unexpected token found in string array");
     }
 }
 
@@ -300,13 +310,13 @@ static Project parser_project(Parser* parser)
     {
         if (parser->current_token_idx >= num_tokens)
         {
-            PARSE_ERROR("Project object was never closed with '}'.");
+            PARSE_ERROR("Project object was never closed with '}'");
             continue;
         }
 
         if (!curr_token_is_type(parser, TOKEN_INDENTIFIER))
         {
-            PARSE_ERROR("Expected an attribute inside object.");
+            PARSE_ERROR("Expected an attribute inside object");
             continue;
         }
 
@@ -315,7 +325,7 @@ static Project parser_project(Parser* parser)
         advance_token(parser);
         if (!curr_token_is_type(parser, TOKEN_COLON))
         {
-            PARSE_ERROR("Expected ':' after attribute.");
+            PARSE_ERROR("Expected ':' after attribute");
             continue;
         }
 
@@ -325,7 +335,7 @@ static Project parser_project(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Name attribute of a project should be equal to a string.");
+                PARSE_ERROR("Name attribute of a project should be equal to a string");
                 continue;
             }
 
@@ -340,7 +350,7 @@ static Project parser_project(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Date attribute of a project should be equal to a string.");
+                PARSE_ERROR("Date attribute of a project should be equal to a string");
                 continue;
             }
 
@@ -355,7 +365,7 @@ static Project parser_project(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Desc attribute of a project should be equal to a string.");
+                PARSE_ERROR("Desc attribute of a project should be equal to a string");
                 continue;
             }
 
@@ -370,7 +380,7 @@ static Project parser_project(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Desc attribute of a project should be equal to a string.");
+                PARSE_ERROR("Desc attribute of a project should be equal to a string");
                 continue;
             }
 
@@ -385,7 +395,7 @@ static Project parser_project(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_L_BRACKET))
             {
-                PARSE_ERROR("Skills attribute of a project should be equal to an array of strings.");
+                PARSE_ERROR("Skills attribute of a project should be equal to an array of strings");
                 continue;
             }
 
@@ -413,7 +423,7 @@ static void fill_projects(Parser* parser, DArray(Project)* arr)
     {
         if (parser->current_token_idx >= num_tokens)
         {
-            PARSE_ERROR("Projects array was never closed with ']'.");
+            PARSE_ERROR("Projects array was never closed with ']'");
             continue;
         }
 
@@ -442,7 +452,7 @@ static void fill_projects(Parser* parser, DArray(Project)* arr)
                 break;
             }
 
-            PARSE_ERROR("Unexpected token found in string array.");
+            PARSE_ERROR("Unexpected token found in string array");
         }
     }
 }
@@ -464,13 +474,13 @@ static Persona parse_persona(Parser* parser)
     {
         if (parser->current_token_idx >= num_tokens)
         {
-            PARSE_ERROR("Persona object was never closed with '}'.");
+            PARSE_ERROR("Persona object was never closed with '}'");
             continue;
         }
 
         if (!curr_token_is_type(parser, TOKEN_INDENTIFIER))
         {
-            PARSE_ERROR("Expected an attribute inside object.");
+            PARSE_ERROR("Expected an attribute inside object");
             continue;
         }
 
@@ -479,7 +489,7 @@ static Persona parse_persona(Parser* parser)
         advance_token(parser);
         if (!curr_token_is_type(parser, TOKEN_COLON))
         {
-            PARSE_ERROR("Expected ':' after attribute.");
+            PARSE_ERROR("Expected ':' after attribute");
             continue;
         }
 
@@ -489,7 +499,7 @@ static Persona parse_persona(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Color attribute of a persona should be equal to a string.");
+                PARSE_ERROR("Color attribute of a persona should be equal to a string");
                 continue;
             }
 
@@ -504,7 +514,7 @@ static Persona parse_persona(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Image attribute of a persona should be equal to a string.");
+                PARSE_ERROR("Image attribute of a persona should be equal to a string");
                 continue;
             }
 
@@ -519,7 +529,7 @@ static Persona parse_persona(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Icon attribute of a persona should be equal to a string.");
+                PARSE_ERROR("Icon attribute of a persona should be equal to a string");
                 continue;
             }
 
@@ -534,7 +544,7 @@ static Persona parse_persona(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Blerb attribute of a persona should be equal to a string.");
+                PARSE_ERROR("Blerb attribute of a persona should be equal to a string");
                 continue;
             }
 
@@ -549,7 +559,7 @@ static Persona parse_persona(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_L_BRACKET))
             {
-                PARSE_ERROR("Abilties attribute of a persona should be equal to an array of strings.");
+                PARSE_ERROR("Abilties attribute of a persona should be equal to an array of strings");
                 continue;
             }
 
@@ -565,7 +575,7 @@ static Persona parse_persona(Parser* parser)
         {
             if (!curr_token_is_type(parser, TOKEN_L_BRACKET))
             {
-                PARSE_ERROR("Projects attribute a persona should be equal to an array of strings.");
+                PARSE_ERROR("Projects attribute a persona should be equal to an array of strings");
                 continue;
             }
 
@@ -609,7 +619,7 @@ Portfolio parser_parse(Parser* parser)
 
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Expected a string after $ property.");
+                PARSE_ERROR("Expected a string after $ property");
                 continue;
             }
 
@@ -646,7 +656,7 @@ Portfolio parser_parse(Parser* parser)
                 continue;
             }
         } else
-            PARSE_ERROR("Expected identifier after '$'.");
+            PARSE_ERROR("Expected identifier after '$'");
     }
 
     if (parser->status != PARSER_FAILURE)
