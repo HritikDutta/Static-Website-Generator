@@ -31,8 +31,11 @@
         }* buckets;     \
     }
 
+#define _gen_name_internal(n, c) n ##c
+#define _gen_name(n, c) _gen_name_internal(n, c)
+
 #define Dict_Bkt(type) \
-    struct              \
+    struct _gen_name(bkt, __COUNTER__) \
     {                   \
         String key;     \
         type value;     \
