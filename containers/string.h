@@ -186,10 +186,9 @@ void string_append(String* dest, char* other)
     else
     {
         size_t prev_len = string_length(*dest);
-        string_resize(dest, prev_len + strlen(other));
-        String_Internal* s = ((String_Internal*)dest - 1);
-        s->length = prev_len + strlen(other);
-        strcpy(*dest + prev_len - 1, other);
+        string_resize(dest, prev_len + strlen(other) + 1);
+        String_Internal* s = string_data(*dest);
+        strcat(*dest, other);
     }
 }
 
