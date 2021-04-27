@@ -730,7 +730,7 @@ Webpage_Status generate_webpages(Portfolio portfolio)
         return WP_MISSING_TEMPLATE;
 
     Template_Parser tp = template_parser_make(home_template);
-    template_parser_parse(&tp);    
+    template_parser_parse(&tp);
 
     if (tp.status == GEN_FAILURE)
     {
