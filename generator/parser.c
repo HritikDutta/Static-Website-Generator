@@ -259,7 +259,7 @@ static void advance_token(Parser* parser)
 #define CHECK_STATEMENT_END() \
     do {                                                    \
         if (!curr_token_is_type(parser, TOKEN_SEMI_COLON))  \
-            PARSE_ERROR("Statements must end with a ';'"); \
+            PARSE_ERROR("Statements must end with a ';'");  \
         else                                                \
             advance_token(parser);                          \
     } while (0)
@@ -295,7 +295,7 @@ static void fill_string_array(Parser* parser, DArray(String)* arr)
             break;
         }
 
-        PARSE_ERROR("Unexpected token found in string array");
+        PARSE_ERROR("Expected , or ] in string array");
     }
 }
 
@@ -540,15 +540,15 @@ static Persona parse_persona(Parser* parser)
             continue;
         }
 
-        if (string_cmp(attribute, "blerb"))
+        if (string_cmp(attribute, "blurb"))
         {
             if (!curr_token_is_type(parser, TOKEN_STRING))
             {
-                PARSE_ERROR("Blerb attribute of a persona should be equal to a string");
+                PARSE_ERROR("Blurb attribute of a persona should be equal to a string");
                 continue;
             }
 
-            persona.blerb = string_make(curr_token(parser).value);
+            persona.blurb = string_make(curr_token(parser).value);
             advance_token(parser);
 
             CHECK_STATEMENT_END();

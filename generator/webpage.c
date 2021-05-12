@@ -503,8 +503,8 @@ static Variable get_persona_prop(Generator* gen, Stage* stage, Persona persona, 
     if (string_cmp(stage->property.name, "icon"))
         return var_make_string(persona.icon);
 
-    if (string_cmp(stage->property.name, "blerb"))
-        return var_make_string(persona.blerb);
+    if (string_cmp(stage->property.name, "blurb"))
+        return var_make_string(persona.blurb);
 
     if (string_cmp(stage->property.name, "abilities"))
         return var_make_string_list(persona.abilities);

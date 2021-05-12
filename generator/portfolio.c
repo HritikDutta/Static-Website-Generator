@@ -54,8 +54,8 @@ void persona_free(Persona* persona)
     if (persona->icon)
         string_free(&persona->icon);
 
-    if (persona->blerb)
-        string_free(&persona->blerb);
+    if (persona->blurb)
+        string_free(&persona->blurb);
 
     da_foreach(String, ab, persona->abilities)
         string_free(ab);

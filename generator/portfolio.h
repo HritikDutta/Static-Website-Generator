@@ -22,7 +22,7 @@ typedef struct
     String image;
     String icon;
     DArray(String) abilities;
-    String blerb;
+    String blurb;
     DArray(Project) projects;
 } Persona;
 
