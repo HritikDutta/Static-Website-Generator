@@ -535,6 +535,9 @@ static Variable get_project_prop(Generator* gen, Stage* stage, Project proj)
     if (string_cmp(stage->property.name, "skills"))
         return var_make_string_list(proj.skills);
 
+    if (string_cmp(stage->property.name, "images"))
+        return var_make_string_list(proj.images);
+
     return (Variable) { 0 };
 }
 

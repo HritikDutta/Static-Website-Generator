@@ -5,9 +5,12 @@
 
 Project project_make()
 {
-    DArray(String) skills;
-    da_make(skills);
-    return (Project) { 0, 0, 0, skills, 0 };
+    Project p = { 0 };
+
+    da_make(p.skills);
+    da_make(p.images);
+
+    return p;
 }
 
 void project_free(Project* project)
@@ -26,18 +29,21 @@ void project_free(Project* project)
 
     da_foreach(String, skill, project->skills)
         string_free(skill);
-    da_free(project->skills);        
+    da_free(project->skills);
+
+    da_foreach(String, image, project->images)
+        string_free(image);
+    da_free(project->images);    
 }
 
 Persona persona_make()
 {
-    DArray(String) abilities;
-    da_make(abilities);
+    Persona p = { 0 };
 
-    DArray(Project) projects;
-    da_make(projects);
+    da_make(p.abilities);
+    da_make(p.projects);
 
-    return (Persona){ 0, 0, 0, 0, abilities, 0, projects };
+    return p;
 }
 
 void persona_free(Persona* persona)
@@ -68,9 +74,9 @@ void persona_free(Persona* persona)
 
 Portfolio portfolio_make()
 {
-    DArray(Persona) personas;
-    da_make(personas);
-    return (Portfolio){ 0, 0, 0, personas };
+    Portfolio p = { 0 };
+    da_make(p.personas);
+    return p;
 }
 
 void portfolio_free(Portfolio* portfolio)

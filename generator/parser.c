@@ -9,6 +9,7 @@
 
 #define DARRAY_IMPL
 #include "containers/darray.h"
+
 #include "portfolio.h"
 
 Lexer lexer_make(String contents)
@@ -75,7 +76,7 @@ void lexer_lex(Lexer* lexer)
     // Just in case
     lexer->index = 0;
     lexer->status = LEXER_NO_LEX;
-    lexer->currentLine = 0;
+    lexer->currentLine = 1;
 
     int len = string_length(lexer->contents);
     while (lexer->status != LEXER_FAILURE && lexer->index < len)
@@ -405,7 +406,23 @@ static Project parser_project(Parser* parser)
                 CHECK_STATEMENT_END();
             
             continue;
-        }        
+        }
+
+        if (string_cmp(attribute, "images"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_L_BRACKET))
+            {
+                PARSE_ERROR("Images attribute of a project should be equal to an array of strings");
+                continue;
+            }
+
+            fill_string_array(parser, &project.images);
+
+            if (parser->status != PARSER_FAILURE)
+                CHECK_STATEMENT_END();
+            
+            continue;
+        }
     }
 
     if (parser->status != PARSER_FAILURE)

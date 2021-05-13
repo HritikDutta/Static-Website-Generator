@@ -8,8 +8,9 @@ typedef struct
     String name;
     String date;
     String link;
-    DArray(String) skills;
     String description;
+    DArray(String) skills;
+    DArray(String) images;
 } Project;
 
 Project project_make();
