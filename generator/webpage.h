@@ -89,9 +89,11 @@ typedef enum
     VAR_NONE,
     VAR_BOOL,
     VAR_PERSONA,
+    VAR_LINK,
     VAR_PROJECT,
     VAR_STRING,
     VAR_STRING_LIST,
+    VAR_LINK_LIST,
     VAR_PROJECT_LIST,
     VAR_PERSONA_LIST,
 } Variable_Type;
@@ -111,6 +113,10 @@ typedef struct
         } persona;
 
         struct {
+            Link data;
+        } link;
+
+        struct {
             Project data;
         } project;
 
@@ -123,9 +129,13 @@ typedef struct
         } string_list;
 
         struct {
+            DArray(Link) list;
+        } link_list;
+
+        struct {
             DArray(Project) list;
         } project_list;
-
+        
         struct {
             DArray(Persona) list;
         } persona_list;
@@ -133,12 +143,14 @@ typedef struct
 } Variable;
 
 Variable var_make_bool(int value);
-Variable var_make_persona(Persona data, int selected);
+Variable var_make_link(Link link);
 Variable var_make_project(Project data);
+Variable var_make_persona(Persona data, int selected);
 Variable var_make_string(String data);
 Variable var_make_string_list(DArray(String) list);
-Variable var_make_persona_list(DArray(Persona) list);
+Variable var_make_link_list(DArray(Link) list);
 Variable var_make_project_list(DArray(Project) list);
+Variable var_make_persona_list(DArray(Persona) list);
 
 typedef enum
 {

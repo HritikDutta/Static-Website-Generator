@@ -522,13 +522,13 @@ static Variable get_project_prop(Generator* gen, Stage* stage, Project proj)
 {
     if (string_cmp(stage->property.name, "name"))
         return var_make_string(proj.name);
-        
+    
     if (string_cmp(stage->property.name, "date"))
         return var_make_string(proj.date);
-        
+    
     if (string_cmp(stage->property.name, "link"))
         return var_make_string(proj.link);
-        
+    
     if (string_cmp(stage->property.name, "description"))
         return var_make_string(proj.description);
 
@@ -537,6 +537,23 @@ static Variable get_project_prop(Generator* gen, Stage* stage, Project proj)
 
     if (string_cmp(stage->property.name, "images"))
         return var_make_string_list(proj.images);
+
+    return (Variable) { 0 };
+}
+
+static Variable get_link_prop(Generator* gen, Stage* stage, Link link)
+{
+    if (string_cmp(stage->property.name, "name"))
+        return var_make_string(link.name);
+        
+    if (string_cmp(stage->property.name, "link"))
+        return var_make_string(link.link);
+
+    if (string_cmp(stage->property.name, "icon"))
+        return var_make_string(link.icon);
+
+    if (string_cmp(stage->property.name, "color"))
+        return var_make_string(link.color);
 
     return (Variable) { 0 };
 }
@@ -555,6 +572,9 @@ static Variable get_value(Generator* gen, DArray(Stage) stages, Stage* stage, Po
         if (string_cmp(stage->property.name, "personas"))
             return var_make_persona_list(portfolio.personas);
 
+        if (string_cmp(stage->property.name, "links"))
+            return var_make_link_list(portfolio.links);
+
         return get_persona_prop(gen, stage, portfolio.personas[selected_index], 1);
     }
 
@@ -570,6 +590,11 @@ static Variable get_value(Generator* gen, DArray(Stage) stages, Stage* stage, Po
         case VAR_PROJECT:
         {
             return get_project_prop(gen, stage, var.project.data);
+        }
+
+        case VAR_LINK:
+        {
+            return get_link_prop(gen, stage, var.link.data);
         }
 
         default:
@@ -674,6 +699,22 @@ static void fill_buffer(Generator* gen, DArray(Stage) stages,
                                 break;
 
                             Variable v = var_make_persona(var.persona_list.list[i], selected_index == i);
+                            dict_put(gen->vs, stage->list.it_name, v);
+                            fill_buffer(gen, stage->list.stages, portfolio, selected_index);
+                        }
+
+                        Variable empty = (Variable) { 0 };
+                        dict_put(gen->vs, stage->list.it_name, empty);
+                    } break;
+
+                    case VAR_LINK_LIST:
+                    {
+                        da_foreach(Link, link, var.link_list.list)
+                        {
+                            if (gen->status == GEN_FAILURE)
+                                break;
+
+                            Variable v = var_make_link(*link);
                             dict_put(gen->vs, stage->list.it_name, v);
                             fill_buffer(gen, stage->list.stages, portfolio, selected_index);
                         }
@@ -847,6 +888,16 @@ Variable var_make_bool(int value)
     return var;
 }
 
+Variable var_make_link(Link data)
+{
+    Variable var;
+
+    var.type = VAR_LINK;
+    var.link.data = data;
+
+    return var;
+}
+
 Variable var_make_persona(Persona data, int selected)
 {
     Variable var;
@@ -888,22 +939,32 @@ Variable var_make_string_list(DArray(String) list)
     return var;
 }
 
-Variable var_make_persona_list(DArray(Persona) list)
-{
-    Variable var;
-
-    var.type = VAR_PERSONA_LIST;
-    var.persona_list.list = list;
-
-    return var;
-}
-
 Variable var_make_project_list(DArray(Project) list)
 {
     Variable var;
 
     var.type = VAR_PROJECT_LIST;
     var.project_list.list = list;
+
+    return var;
+}
+
+Variable var_make_link_list(DArray(Link) list)
+{
+    Variable var;
+
+    var.type = VAR_LINK_LIST;
+    var.link_list.list = list;
+
+    return var;
+}
+
+Variable var_make_persona_list(DArray(Persona) list)
+{
+    Variable var;
+
+    var.type = VAR_PERSONA_LIST;
+    var.persona_list.list = list;
 
     return var;
 }

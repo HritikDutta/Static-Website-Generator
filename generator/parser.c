@@ -611,6 +611,96 @@ static Persona parse_persona(Parser* parser)
     return persona;
 }
 
+static Link parse_link(Parser* parser)
+{
+    Link link = link_make();
+
+    // Already checked for string in parser_parse()
+    link.name = string_make(parser->tokens[parser->current_token_idx].value);
+    advance_token(parser);
+
+    if (!curr_token_is_type(parser, TOKEN_L_BRACE))
+        return link;
+
+    advance_token(parser);
+    int num_tokens = da_size(parser->tokens);
+    while (parser->status != PARSER_FAILURE && !curr_token_is_type(parser, TOKEN_R_BRACE))
+    {
+        if (parser->current_token_idx >= num_tokens)
+        {
+            PARSE_ERROR("Link object was never closed with '}'");
+            continue;
+        }
+
+        if (!curr_token_is_type(parser, TOKEN_INDENTIFIER))
+        {
+            PARSE_ERROR("Expected an attribute inside object");
+            continue;
+        }
+
+        String attribute = curr_token(parser).value;
+
+        advance_token(parser);
+        if (!curr_token_is_type(parser, TOKEN_COLON))
+        {
+            PARSE_ERROR("Expected ':' after attribute");
+            continue;
+        }
+
+        advance_token(parser);
+
+        if (string_cmp(attribute, "link"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_STRING))
+            {
+                PARSE_ERROR("Link attribute of a link should be equal to a string");
+                continue;
+            }
+
+            link.link = string_make(curr_token(parser).value);
+            advance_token(parser);
+
+            CHECK_STATEMENT_END();
+            continue;
+        }
+
+        if (string_cmp(attribute, "icon"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_STRING))
+            {
+                PARSE_ERROR("Icon attribute of a link should be equal to a string");
+                continue;
+            }
+
+            link.icon = string_make(curr_token(parser).value);
+            advance_token(parser);
+
+            CHECK_STATEMENT_END();
+            continue;
+        }
+
+        if (string_cmp(attribute, "color"))
+        {
+            if (!curr_token_is_type(parser, TOKEN_STRING))
+            {
+                PARSE_ERROR("Color attribute of a link should be equal to a string");
+                continue;
+            }
+
+            link.color = string_make(curr_token(parser).value);
+            advance_token(parser);
+
+            CHECK_STATEMENT_END();
+            continue;
+        }
+    }
+
+    if (parser->status != PARSER_FAILURE)
+        advance_token(parser);
+
+    return link;
+}
+
 Portfolio parser_parse(Parser* parser)
 {
     Portfolio portfolio = portfolio_make();
@@ -672,8 +762,21 @@ Portfolio parser_parse(Parser* parser)
 
                 continue;
             }
+
+            if (string_cmp(i_name, "link"))
+            {
+                Link link = parse_link(parser);
+                
+                if (parser->status != PARSER_FAILURE)
+                    da_push_back(portfolio.links, link);
+                else
+                    link_free(&link);
+
+                continue;
+            }
+
         } else
-            PARSE_ERROR("Expected identifier after '$'");
+            PARSE_ERROR("Expected a '$' property");
     }
 
     if (parser->status != PARSER_FAILURE)

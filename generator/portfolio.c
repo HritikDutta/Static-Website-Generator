@@ -72,9 +72,23 @@ void persona_free(Persona* persona)
     da_free(persona->projects);
 }
 
+Link link_make()
+{
+    return (Link) { 0 };
+}
+
+void link_free(Link* link)
+{
+    string_free(&link->name);
+    string_free(&link->link);
+    string_free(&link->icon);
+    string_free(&link->color);
+}
+
 Portfolio portfolio_make()
 {
     Portfolio p = { 0 };
+    da_make(p.links);
     da_make(p.personas);
     return p;
 }
@@ -89,6 +103,10 @@ void portfolio_free(Portfolio* portfolio)
 
     if (portfolio->outdir)
         string_free(&portfolio->outdir);
+
+    da_foreach(Link, link, portfolio->links)
+        link_free(link);
+    da_free(portfolio->links);
 
     da_foreach(Persona, persona, portfolio->personas)
         persona_free(persona);

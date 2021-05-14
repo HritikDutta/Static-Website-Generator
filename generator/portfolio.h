@@ -32,9 +32,21 @@ void persona_free(Persona* persona);
 
 typedef struct
 {
+    String name;
+    String link;
+    String icon;
+    String color;
+} Link;
+
+Link link_make();
+void link_free(Link* link);
+
+typedef struct
+{
     String home_template;
     String page_template;
     String outdir;
+    DArray(Link) links;
     DArray(Persona) personas;
 } Portfolio;
 
