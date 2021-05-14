@@ -1,6 +1,45 @@
 $home_template "portfolio/home_template.html"
 $page_template "portfolio/page_template.html"
+//$outdir        "../hritikdutta.github.io"
 $outdir        "website"
+
+/*
+Adding support for links
+*/
+
+// Links
+
+$link "GitHub" {
+    link: "https://github.com/HritikDutta";
+    icon: "res/icons/links/github.svg";
+    color: "#181717";
+}
+
+$link "Instagram" {
+    link: "https://www.instagram.com/isnt.a.gram/";
+    icon: "res/icons/links/instagram.svg";
+    color: "#E4405F";
+}
+
+$link "Medium Blog" {
+    link: "https://medium.com/@threewaydude";
+    icon: "res/icons/links/medium.svg";
+    color: "#000000";
+}
+
+$link "LinkedIn" {
+    link: "https://www.linkedin.com/in/hritik-dutta-a2b498154/";
+    icon: "res/icons/links/linkedin.svg";
+    color: "#0A66C2";
+}
+
+$link "Gmail" {
+    link: "mailto:dutta.hritik@gmail.com";
+    icon: "res/icons/links/gmail.svg";
+    color: "#EA4335";
+}
+
+// Personas
 
 // $persona "Writer"
 
@@ -9,21 +48,21 @@ $persona "Film Maker" {
     image: "res/images/filmmaker.png";
     icon:  "res/icons/filmmaker.png";
     abilities: [
-        "Writing",
+        "Screenwriting",
         "Direction",
         "Cinematography",
         "Editing",
+        "Colour Grading",
         "Sound Design"
     ];
-    blerb:
-    `Some blerb about me being a filmaker. I have made many films of my own with
-    the help of my friends. You can see these projects below.`;
+    blurb:
+    `An aspiring film-maker who has made numerous short films with his friends (some of which he doesn’t like to admit he made).`;
     projects: [
         {
             name: "Pratibimb";
-            date: "31st August 2021";
-            desc: `A description for pratibimb.`;
-            link: "https://www.youtube.com/video/Pratibimb";
+            date: "10th March 2019";
+            desc: `Rohit finds catharsis in narcissism. However it blinds him to the people who actually care.`;
+            link: "https://youtu.be/vRULSmAdJm0";
             skills: [
                 "Writing",
                 "Direction",
@@ -31,18 +70,68 @@ $persona "Film Maker" {
                 "Editing",
                 "Colour Grading"
             ];
+            images: [
+                "res/images/films/01-Pratibimb/thumbnail_01.jpg",
+                "res/images/films/01-Pratibimb/thumbnail_02.jpg",
+                "res/images/films/01-Pratibimb/thumbnail_03.jpg",
+                "res/images/films/01-Pratibimb/thumbnail_04.jpg",
+            ];
         },
         {
             name: "Deadline";
-            date: "20th March 2021";
-            desc: `A description for deadline.`;
-            link: "https://www.youtube.com/video/Deadline";
+            date: "3rd July 2019";
+            desc: `A writer spends too much time on getting comfortable than on writing. This is a short film I made completely by myself because I was getting bored.`;
+            link: "https://youtu.be/Q7KG49R1Of0";
             skills: [
                 "Acting",
                 "Direction",
                 "Cinematography",
                 "Editing",
                 "Sound Design",
+            ];
+            images: [
+                "res/images/films/02-Deadline/thumbnail_01.jpg",
+                "res/images/films/02-Deadline/thumbnail_02.jpg",
+                "res/images/films/02-Deadline/thumbnail_03.jpg",
+            ];
+        },
+        {
+            name: "Room Temperature";
+            date: "23rd August 2019";
+            desc: `A short film on a person who has a rare disease.`;
+            link: "https://youtu.be/2vQ4EzGkUpk";
+            skills: [
+                "Direction",
+                "Cinematography",
+                "Editing",
+                "VFX",
+                "Sound Design",
+            ];
+            images: [
+                "res/images/films/03-Room Temperature/thumbnail_01.jpg",
+                "res/images/films/03-Room Temperature/thumbnail_02.jpg",
+                "res/images/films/03-Room Temperature/thumbnail_03.jpg",
+                "res/images/films/03-Room Temperature/thumbnail_04.jpg",
+            ];
+        },
+        {
+            name: "A Tale of Passion";
+            date: "18th October 2019";
+            desc: `A film made for India Film Project 50 hour Film-making challenge. The film was re-editted before uploading on YouTube.`;
+            link: "https://youtu.be/jzz1xMU5YCs";
+            skills: [
+                "Direction",
+                "Cinematography",
+                "Editing",
+                "Sound Design",
+            ];
+            images: [
+                "res/images/films/04-A Tale of Passion/thumbnail_01.jpg",
+                "res/images/films/04-A Tale of Passion/thumbnail_02.jpg",
+                "res/images/films/04-A Tale of Passion/thumbnail_03.jpg",
+                "res/images/films/04-A Tale of Passion/thumbnail_04.jpg",
+                "res/images/films/04-A Tale of Passion/thumbnail_05.jpg",
+                "res/images/films/04-A Tale of Passion/thumbnail_06.jpg",
             ];
         },
     ];
@@ -56,19 +145,112 @@ $persona "Programmer" {
         "C/C++",
         "HTML/CSS",
         "Javascript",
-        "Python",
+        "C#",
+        "Graphics",
         "Algorithms",
         "Data Structures",
         "Coffee Drinking"
     ];
-    blerb:
-    `Some blerb about me programming for a while and have made many projects
-    till now. All the projects will be linked below.`;
-    projects: [];
+    blurb:
+    `An avid programmer who never fails to solve a problem no matter how many trips to stack overflow it takes.`;
+    projects: [
+        {
+            name: "C-todo";
+            date: "1st April 2021";
+            desc: "A simple todo system for the command prompt.";
+            link: "https://github.com/HritikDutta/c-todo";
+            skills: [
+                "C",
+                "Data Structures",
+                "Algorithms",
+                "Parsing"
+            ];
+        },
+        {
+            name: "Ftn2Fdx";
+            date: "2nd April 2021";
+            desc: "A simple fountain to fdx converter. The converted fdx file supports SmartType. Made for my own convinience for the most part.";
+            link: "https://github.com/HritikDutta/ftn2fdx";
+            skills: [
+                "C",
+                "Data Structures",
+                "Algorithms",
+                "Parsing",
+                "Markdown"
+            ];
+        },
+        {
+            name: "SWG";
+            date: "20th March 2021";
+            desc: "An extremely bare-bones static website generator made in C that I used for this very website.";
+            link: "https://github.com/HritikDutta/Static-Website-Generator";
+            skills: [
+                "C",
+                "HTML/CSS",
+                "Data Structures",
+                "Algorithms",
+                "Parsing",
+                "Front End Development"
+            ];
+        },
+        {
+            name: "C-ontainers";
+            date: "9th January 2021";
+            desc: "Simple data structures for c. Inspired by stb_ds.";
+            link: "https://github.com/HritikDutta/C-ontainers";
+            skills: [
+                "C",
+                "Data Structures",
+                "Algorithms"
+            ];
+        },
+        {
+            name: "Json Parser";
+            date: "8th December 2020";
+            desc: "A relatively simple Json Parser made in C++.";
+            link: "https://github.com/HritikDutta/JsonParser";
+            skills: [
+                "C++",
+                "JSON",
+                "Parsing"
+            ];
+        },
+        {
+            name: "MyStl";
+            date: "24th August 2020";
+            desc: "My implementation of the c++ stl. This is just an educational project to make a more readable version of the stl.";
+            link: "https://github.com/HritikDutta/MyStl";
+            skills: [
+                "C++",
+                "Data Structures"
+            ];
+        },
+        {
+            name: "Calex 2";
+            date: "14th April 2019";
+            desc: "The much awaited sequel to calex. This time the input is properly parsed and more operators can be easily addded.";
+            link: "https://github.com/HritikDutta/calex2";
+            skills: [
+                "C++",
+                "Parsing",
+                "Data Structures"
+            ];
+        },
+        {
+            name: "Calex";
+            date: "2nd January 2019";
+            desc: "A simple expression calculator for the linux terminal.";
+            link: "https://github.com/HritikDutta/calex";
+            skills: [
+                "C++",
+                "Data Structures"
+            ];
+        }
+    ];
 }
 
 $persona "Game Developer" {
-    color: "#5bba46";
+    color: "#5eb944";
     image: "res/images/game-dev.png";
     icon:  "res/icons/game-dev.png";
     abilities: [
@@ -78,13 +260,98 @@ $persona "Game Developer" {
         "Unity",
         "C#",
         "Javascript",
+        "Three.js",
         "Algorithms",
         "Data Structures"
     ];
-    blerb:
-    `Some blerb about me making games for a while and have made many projects
-    till now. All the projects will be linked below.`;
-    projects: [];
+    blurb:
+    `A passionate game developer who thinks the code and logic behind the game is as much an art as the visuals and sound. Conjuring creative solutions to new problems is his strong suit.`;
+    projects: [
+        {
+            name: "Hurry Flurry";
+            date: "10th September 2020";
+            desc: "This is a small mobile game I am working on with my friends. It is an endless runner mixed with puzzle platformer where the player can turn into solid, liquid or gas to get through as many obstacles as possible.";
+            link: "https://play.google.com/store/apps/details?id=com.AFKStudios.HurryFlurry";
+            skills: [
+                "Unity",
+                "C#",
+                "OOP",
+                "Level Generation"
+            ];
+            images: [
+                "res/images/games/01-Hurry Flurry/gameplay.gif",
+                "res/images/games/01-Hurry Flurry/thumbnail_01.jpg",
+                "res/images/games/01-Hurry Flurry/thumbnail_02.jpg",
+                "res/images/games/01-Hurry Flurry/thumbnail_03.jpg",
+                "res/images/games/01-Hurry Flurry/thumbnail_04.jpg",
+                "res/images/games/01-Hurry Flurry/thumbnail_05.jpg",
+                "res/images/games/01-Hurry Flurry/menu.gif",
+            ];
+        },
+        {
+            name: "Bump Pong";
+            date: "19th April 2021";
+            desc: "A digital version of an old game called Blip. I worked on this game as the main Unity developer during my internship at Monkhub Inc.";
+            link: "https://play.google.com/store/apps/details?id=com.sempervi.bump";
+            skills: [
+                "Unity",
+                "C#",
+                "OOP",
+                "Photon Engine",
+                "Realtime Multiplayer"
+            ];
+            images: [
+                "res/images/games/02-Bump Pong/gameplay.gif",
+                "res/images/games/02-Bump Pong/thumbnail_01.jpg",
+                "res/images/games/02-Bump Pong/thumbnail_02.jpg",
+                "res/images/games/02-Bump Pong/thumbnail_03.jpg",
+            ];
+        },
+        {
+            name: "Tic Tac Toe";
+            date: "26th April 2021";
+            desc: "A quick practice game I made using my own game library because I was bored.";
+            link: "https://github.com/HritikDutta/Tic-Tac-Toe";
+            skills: [
+                "C++",
+                "OpenGL",
+                "SSE2",
+            ];
+        },
+        {
+            name: "Solar System Demo";
+            date: "30th April 2021";
+            desc: "A simple solar system explorer demo I made to practice 3D graphics with OpenGL.";
+            link: "https://github.com/HritikDutta/Solar-System";
+            skills: [
+                "C++",
+                "OpenGL",
+                "SSE2",
+                "3D Graphics",
+            ];
+            images: [
+                "res/images/games/04-Solar System Demo/thumbnail_01.jpg",
+                "res/images/games/04-Solar System Demo/thumbnail_02.jpg",
+                "res/images/games/04-Solar System Demo/thumbnail_03.jpg",
+            ];
+        },
+        /*
+        {
+            name: "Super Smash Browse";
+            date: "In Progress";
+            desc: "A browser based fps game where players duel with their wits rather than reflexes.";
+            link: "";
+            skills: [
+                "HTML/CSS",
+                "Javascript",
+                "Three.js",
+                "Ammo.js",
+                "Socket.io",
+                "Node.js"
+            ];
+        },
+        */
+    ];
 }
 
 $persona "Photographer" {
@@ -95,10 +362,90 @@ $persona "Photographer" {
         "Wildlife",
         "Fashion",
         "Street",
-        "Product"
+        "Product",
+        "Architectural",
+        "Photoshop",
+        "Lightroom"
     ];
-    blerb:
-    `Some blerb about me clicking pictures for a while.
-    All the photographs will be linked below.`;
-    projects: [];
+    blurb:
+    `Being part film-maker, Hritik has a keen eye for beautiful still frames and can portray numerous emotions in a single shot.`;
+    projects: [
+        {
+            name: "Bharatpur Bird Sanctuary";
+            skills: [
+                "Wildlife Photography",
+                "Photoshop"
+            ];
+            images: [
+                "res/images/photos/8.jpg",
+                "res/images/photos/9.jpg",
+                "res/images/photos/1.jpg",
+                "res/images/photos/13.jpg",
+                "res/images/photos/18.jpg",
+                "res/images/photos/21.jpg",
+                "res/images/photos/22.jpg",
+                "res/images/photos/25.jpg",
+                "res/images/photos/27.jpg",
+                "res/images/photos/28.jpg",
+            ];
+        },
+        {
+            name: "The Streets of North Calcutta";
+            skills: [
+                "Street Photography",
+                "Photoshop",
+                "Lightroom"
+            ];
+            images: [
+                "res/images/photos/IMG_5036.JPG",
+                "res/images/photos/IMG_5038.JPG",
+                "res/images/photos/IMG_5083.JPG",
+                "res/images/photos/IMG_5087.JPG",
+                "res/images/photos/IMG_5102.JPG",
+                "res/images/photos/IMG-20160613-WA0002.jpg",
+                "res/images/photos/IMG-20160613-WA0003.jpg",
+            ];
+        },
+        {
+            name: "Ancient Architecture";
+            skills: [
+                "Architectural Photography",
+                "Street Photography",
+                "Lightroom"
+            ];
+            images: [
+                "res/images/photos/IMG_1225.JPG",
+                "res/images/photos/IMG_9045.JPG",
+                "res/images/photos/IMG_20190102_161843804.jpg",
+                "res/images/photos/IMG_20190722_135600.jpg",
+            ];
+        },
+        {
+            name: "Backyard Bird Watching";
+            skills: [
+                "Wildlife Photography",
+            ];
+            images: [
+                "res/images/photos/IMG_2908.JPG",
+                "res/images/photos/IMG_2969.JPG",
+                "res/images/photos/3922706_orig.jpg",
+                "res/images/photos/3938724_orig.jpg",
+                "res/images/photos/7003542_orig.jpg",
+                "res/images/photos/7530552_orig.jpg",
+            ];
+        },
+        {
+            name: "Random Stuff (Will be renamed)";
+            skills: [
+                "Street Photography",
+                "Wildlife Photography",
+            ];
+            images: [
+                "res/images/photos/IMG_4877.JPG",
+                "res/images/photos/IMG_2985.JPG",
+                "res/images/photos/IMG_2987.JPG",
+                "res/images/photos/8815315_orig.jpg",
+            ];
+        },
+    ];
 }

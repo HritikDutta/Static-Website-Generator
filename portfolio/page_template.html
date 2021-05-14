@@ -33,25 +33,30 @@
             </div>
         </div>
         <div id="details">
-            <div class="special-text">dutta.hritk@gmail.com</div>
-            <div class="special-text">+91 78383 89522</div>
+            <$links -> link {
+                <a class="social-link" href="<$link.link>">
+                    <img src="<$link.icon>" style="fill: <$link.color>;" alt="<$link.name>" />
+                </a>
+            }>
         </div>
     </nav>
 
     <section id="about-character" class="container">
         <h1 class="special-text">Hritik the <span class="signature-color"><$name></span></h1>
         <div id="about">
-            <div id="hero-image-section"><img src="<$image>" alt="Film Maker Persona" class="hero-image" /></div>
+            <div id="hero-image-section"><img src="<$image>" alt="<$name> Persona" class="hero-image" /></div>
             <div id="abilities">
                 <h3 class="special-text signature-color">Abilities</h3>
-                <$abilities -> ab {
-                    <$ab> <br />
-                }>
+                <div id="ability-list">
+                    <$abilities -> ab {
+                        <div><$ab></div>
+                    }>
+                </div>
             </div>
-            <div id="blerb">
-                <h3 class="special-text signature-color">Blerb</h3>
+            <div id="blurb">
+                <h3 class="special-text signature-color">Blurb</h3>
                 <p>
-                    <$blerb>
+                    <$blurb>
                 </p>
             </div>
         </div>
@@ -72,6 +77,11 @@
                             <li class="project-skill grey-text"><$s></li>
                         }>
                     </ul>
+                    <div class="image-scroll">
+                        <$p.images -> img {
+                            <img src="<$img>" />
+                        }>
+                    </div>
                     <p>
                         <$p.description>
                     </p>
