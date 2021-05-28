@@ -3,10 +3,6 @@ $page_template "portfolio/page_template.html"
 //$outdir        "../hritikdutta.github.io"
 $outdir        "website"
 
-/*
-Adding support for links
-*/
-
 // Links
 
 $link "GitHub" {
@@ -60,7 +56,7 @@ $persona "Film Maker" {
     projects: [
         {
             name: "Pratibimb";
-            date: "10th March 2019";
+            date: "10th Mar 2019";
             desc: `Rohit finds catharsis in narcissism. However it blinds him to the people who actually care.`;
             link: "https://youtu.be/vRULSmAdJm0";
             skills: [
@@ -80,7 +76,7 @@ $persona "Film Maker" {
         {
             name: "Deadline";
             date: "3rd July 2019";
-            desc: `A writer spends too much time on getting comfortable than on writing. This is a short film I made completely by myself because I was getting bored.`;
+            desc: `A writer spends too much time on getting comfortable than on writing. I made this short film completely by myself when I was getting bored.`;
             link: "https://youtu.be/Q7KG49R1Of0";
             skills: [
                 "Acting",
@@ -97,8 +93,8 @@ $persona "Film Maker" {
         },
         {
             name: "Room Temperature";
-            date: "23rd August 2019";
-            desc: `A short film on a person who has a rare disease.`;
+            date: "23rd Aug 2019";
+            desc: `A man has a rare disease. He will die if surprised. However he finds someone to brighten up his life.`;
             link: "https://youtu.be/2vQ4EzGkUpk";
             skills: [
                 "Direction",
@@ -116,10 +112,11 @@ $persona "Film Maker" {
         },
         {
             name: "A Tale of Passion";
-            date: "18th October 2019";
-            desc: `A film made for India Film Project 50 hour Film-making challenge. The film was re-editted before uploading on YouTube.`;
+            date: "18th Oct 2019";
+            desc: `A group of passionate film-makers comes together to make a film under 50 hours for a competition.`;
             link: "https://youtu.be/jzz1xMU5YCs";
             skills: [
+                "Writing",
                 "Direction",
                 "Cinematography",
                 "Editing",
@@ -156,7 +153,7 @@ $persona "Programmer" {
     projects: [
         {
             name: "C-todo";
-            date: "1st April 2021";
+            date: "1st Apr 2021";
             desc: "A simple todo system for the command prompt.";
             link: "https://github.com/HritikDutta/c-todo";
             skills: [
@@ -168,7 +165,7 @@ $persona "Programmer" {
         },
         {
             name: "Ftn2Fdx";
-            date: "2nd April 2021";
+            date: "2nd Apr 2021";
             desc: "A simple fountain to fdx converter. The converted fdx file supports SmartType. Made for my own convinience for the most part.";
             link: "https://github.com/HritikDutta/ftn2fdx";
             skills: [
@@ -181,7 +178,7 @@ $persona "Programmer" {
         },
         {
             name: "SWG";
-            date: "20th March 2021";
+            date: "20th Mar 2021";
             desc: "An extremely bare-bones static website generator made in C that I used for this very website.";
             link: "https://github.com/HritikDutta/Static-Website-Generator";
             skills: [
@@ -195,7 +192,7 @@ $persona "Programmer" {
         },
         {
             name: "C-ontainers";
-            date: "9th January 2021";
+            date: "9th Jan 2021";
             desc: "Simple data structures for c. Inspired by stb_ds.";
             link: "https://github.com/HritikDutta/C-ontainers";
             skills: [
@@ -206,7 +203,7 @@ $persona "Programmer" {
         },
         {
             name: "Json Parser";
-            date: "8th December 2020";
+            date: "8th Dec 2020";
             desc: "A relatively simple Json Parser made in C++.";
             link: "https://github.com/HritikDutta/JsonParser";
             skills: [
@@ -217,7 +214,7 @@ $persona "Programmer" {
         },
         {
             name: "MyStl";
-            date: "24th August 2020";
+            date: "24th Aug 2020";
             desc: "My implementation of the c++ stl. This is just an educational project to make a more readable version of the stl.";
             link: "https://github.com/HritikDutta/MyStl";
             skills: [
@@ -227,7 +224,7 @@ $persona "Programmer" {
         },
         {
             name: "Calex 2";
-            date: "14th April 2019";
+            date: "14th Apr 2019";
             desc: "The much awaited sequel to calex. This time the input is properly parsed and more operators can be easily addded.";
             link: "https://github.com/HritikDutta/calex2";
             skills: [
@@ -238,7 +235,7 @@ $persona "Programmer" {
         },
         {
             name: "Calex";
-            date: "2nd January 2019";
+            date: "2nd Jan 2019";
             desc: "A simple expression calculator for the linux terminal.";
             link: "https://github.com/HritikDutta/calex";
             skills: [
@@ -269,8 +266,8 @@ $persona "Game Developer" {
     projects: [
         {
             name: "Hurry Flurry";
-            date: "10th September 2020";
-            desc: "This is a small mobile game I am working on with my friends. It is an endless runner mixed with puzzle platformer where the player can turn into solid, liquid or gas to get through as many obstacles as possible.";
+            date: "10th Sept 2020";
+            desc: "My first mobile game I made with my friends using Unity. It is an endless runner mixed with puzzle platformer where the player can turn into solid, liquid or gas to get through as many obstacles as possible.";
             link: "https://play.google.com/store/apps/details?id=com.AFKStudios.HurryFlurry";
             skills: [
                 "Unity",
@@ -290,8 +287,8 @@ $persona "Game Developer" {
         },
         {
             name: "Bump Pong";
-            date: "19th April 2021";
-            desc: "A digital version of an old game called Blip. I worked on this game as the main Unity developer during my internship at Monkhub Inc.";
+            date: "19th Apr 2021";
+            desc: "A digital version of an old game called Blip. I worked on this game as the main Unity developer during my internship at Monkhub Innovations Pvt. Ltd.";
             link: "https://play.google.com/store/apps/details?id=com.sempervi.bump";
             skills: [
                 "Unity",
@@ -308,19 +305,8 @@ $persona "Game Developer" {
             ];
         },
         {
-            name: "Tic Tac Toe";
-            date: "26th April 2021";
-            desc: "A quick practice game I made using my own game library because I was bored.";
-            link: "https://github.com/HritikDutta/Tic-Tac-Toe";
-            skills: [
-                "C++",
-                "OpenGL",
-                "SSE2",
-            ];
-        },
-        {
             name: "Solar System Demo";
-            date: "30th April 2021";
+            date: "30th Apr 2021";
             desc: "A simple solar system explorer demo I made to practice 3D graphics with OpenGL.";
             link: "https://github.com/HritikDutta/Solar-System";
             skills: [
@@ -335,22 +321,21 @@ $persona "Game Developer" {
                 "res/images/games/04-Solar System Demo/thumbnail_03.jpg",
             ];
         },
-        /*
         {
-            name: "Super Smash Browse";
-            date: "In Progress";
-            desc: "A browser based fps game where players duel with their wits rather than reflexes.";
-            link: "";
+            name: "Tic Tac Toe";
+            date: "26th Apr 2021";
+            desc: "A quick practice game I made using my own game library because I was bored.";
+            link: "https://github.com/HritikDutta/Tic-Tac-Toe";
             skills: [
-                "HTML/CSS",
-                "Javascript",
-                "Three.js",
-                "Ammo.js",
-                "Socket.io",
-                "Node.js"
+                "C++",
+                "OpenGL",
+                "SSE2",
+            ];
+            images: [
+                "res/images/games/03-Tic Tac Toe/thumbnail_01.jpg",
+                "res/images/games/03-Tic Tac Toe/thumbnail_02.jpg",
             ];
         },
-        */
     ];
 }
 
@@ -397,11 +382,11 @@ $persona "Photographer" {
                 "Lightroom"
             ];
             images: [
-                "res/images/photos/IMG_5036.JPG",
-                "res/images/photos/IMG_5038.JPG",
-                "res/images/photos/IMG_5083.JPG",
-                "res/images/photos/IMG_5087.JPG",
-                "res/images/photos/IMG_5102.JPG",
+                "res/images/photos/IMG_5036.jpg",
+                "res/images/photos/IMG_5038.jpg",
+                "res/images/photos/IMG_5083.jpg",
+                "res/images/photos/IMG_5087.jpg",
+                "res/images/photos/IMG_5102.jpg",
                 "res/images/photos/IMG-20160613-WA0002.jpg",
                 "res/images/photos/IMG-20160613-WA0003.jpg",
             ];
@@ -414,8 +399,8 @@ $persona "Photographer" {
                 "Lightroom"
             ];
             images: [
-                "res/images/photos/IMG_1225.JPG",
-                "res/images/photos/IMG_9045.JPG",
+                "res/images/photos/IMG_1225.jpg",
+                "res/images/photos/IMG_9045.jpg",
                 "res/images/photos/IMG_20190102_161843804.jpg",
                 "res/images/photos/IMG_20190722_135600.jpg",
             ];
@@ -426,8 +411,8 @@ $persona "Photographer" {
                 "Wildlife Photography",
             ];
             images: [
-                "res/images/photos/IMG_2908.JPG",
-                "res/images/photos/IMG_2969.JPG",
+                "res/images/photos/IMG_2908.jpg",
+                "res/images/photos/IMG_2969.jpg",
                 "res/images/photos/3922706_orig.jpg",
                 "res/images/photos/3938724_orig.jpg",
                 "res/images/photos/7003542_orig.jpg",
@@ -441,9 +426,9 @@ $persona "Photographer" {
                 "Wildlife Photography",
             ];
             images: [
-                "res/images/photos/IMG_4877.JPG",
-                "res/images/photos/IMG_2985.JPG",
-                "res/images/photos/IMG_2987.JPG",
+                "res/images/photos/IMG_4877.jpg",
+                "res/images/photos/IMG_2985.jpg",
+                "res/images/photos/IMG_2987.jpg",
                 "res/images/photos/8815315_orig.jpg",
             ];
         },
