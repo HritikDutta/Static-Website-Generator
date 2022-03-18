@@ -143,7 +143,7 @@ typedef struct
 } Variable;
 
 Variable var_make_bool(int value);
-Variable var_make_link(Link link);
+Variable var_make_link(Link data);
 Variable var_make_project(Project data);
 Variable var_make_persona(Persona data, int selected);
 Variable var_make_string(String data);
